@@ -1,0 +1,30 @@
+.form-wrapper{
+	height: 100vh;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	.subscription-tick-form{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		input[type=tel]{
+			height: 100px;
+			width: 650px;
+			padding: 20px;
+			font-size: 100px;
+			border-radius: 1rem;
+		}
+		input[type=submit]{
+			height: 5rem;
+			width: 694px;
+			margin-top: 5px;
+			border-radius: 1rem;
+			font-size: 3rem;
+			letter-spacing: 2px;
+			background-color: #880838;
+			color: white;
+			cursor: pointer;
+		}
+	}
+}
