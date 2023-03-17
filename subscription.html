@@ -9,11 +9,17 @@
 		<link rel="stylesheet" href="./sass/style.css">
 	</head>
 	<body>
-		<div class="form-wrapper">
-			<form class="subscription-tick-form">
-				<input type="tel" name="users phone" id="user_phone" value="000-000-0000">
-				<input type="submit" value="Submit">
-			</form>
+		<div class="subscription-grid">
+			<div class="main-cell form-wrapper" id="form_wrapper">
+				<form class="subscription-tick-form" id="sub_tick_form">
+					<input autofocus="true" type="tel" name="users phone" id="user_phone" placeholder="559-492-6313">
+					<input type="submit" value="Submit">
+				</form>
+			</div>
+			<div class="main-cell form-success" id="form_success">
+				<h1>You have 3 remaining vouchers!</h1>
+			</div>
 		</div>
+		<script src="./js/subscription.js"></script>
 	</body>
 </html>
