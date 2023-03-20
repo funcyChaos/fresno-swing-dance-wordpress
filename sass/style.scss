@@ -6,47 +6,44 @@
 	height: 100vh;
 	display: grid;
 	grid-template-columns: auto;
-	grid-template-rows: 1fr 2fr 1fr;
+	grid-template-rows: 1fr 5fr 1fr;
 	grid-template-areas: "header""main""footer";
 	
 	.main-cell{
 		grid-area: main;
 		height: 100%;
+		padding: 5rem 0;
 
 		display: flex;
-		justify-content: center;
-		// align-items: center;
+		flex-direction: column;
+		align-items: center;
 	}
 	
-	.form-success{
+	.main-hide{
 		display: none;
 		background-color: white;
 	}
 	
-	.form-wrapper{
-		.subscription-tick-form{
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			input[type=tel]{
-				text-align: center;
-				height: 100px;
-				width: 650px;
-				padding: 20px;
-				font-size: 95px;
-				border-radius: 1rem;
-			}
-			input[type=submit]{
-				height: 5rem;
-				width: 694px;
-				margin-top: 5px;
-				border-radius: 1rem;
-				font-size: 3rem;
-				letter-spacing: 2px;
-				background-color: #880838;
-				color: white;
-				cursor: pointer;
-			}
+	.subscription-tick-form{
+		input[type=tel]{
+			text-align: center;
+			height: 100px;
+			width: 650px;
+			padding: 20px;
+			font-size: 95px;
+			border-radius: 1rem;
+			caret-color: transparent;
+		}
+		input[type=submit]{
+			height: 5rem;
+			width: 694px;
+			margin-top: 5px;
+			border-radius: 1rem;
+			font-size: 3rem;
+			letter-spacing: 2px;
+			background-color: #880838;
+			color: white;
+			cursor: pointer;
 		}
 	}
 }

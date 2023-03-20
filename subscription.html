@@ -10,14 +10,15 @@
 	</head>
 	<body>
 		<div class="subscription-grid">
-			<div class="main-cell form-wrapper" id="form_wrapper">
-				<form class="subscription-tick-form" id="sub_tick_form">
-					<input autofocus="true" type="tel" name="users phone" id="user_phone" placeholder="559-492-6313">
+				<form class="main-cell subscription-tick-form" id="sub_tick_form">
+					<input required autofocus="true" type="tel" name="users phone" id="user_phone" placeholder="559-492-6313">
 					<input type="submit" value="Submit">
 				</form>
-			</div>
-			<div class="main-cell form-success" id="form_success">
+			<div class="main-cell main-hide" id="form_success">
 				<h1>You have 3 remaining vouchers!</h1>
+			</div>
+			<div class="main-cell main-hide" id="form_fail">
+				<h1>That number doesn't have any vouchers</h1>
 			</div>
 		</div>
 		<script src="./js/subscription.js"></script>
