@@ -1,5 +1,7 @@
 const success 		= document.getElementById('form_success')
+const succMsg			= document.getElementById('success_message')
 const fail				= document.getElementById('form_fail')
+const errMsg			= document.getElementById('error_message')
 const results			= document.querySelectorAll('.main-hide')
 let		result			= false
 const form 				= document.getElementById('sub_tick_form')
@@ -7,22 +9,35 @@ const phone				= document.getElementById('user_phone')
 
 form.addEventListener('submit', (e)=>{
 	e.preventDefault()
-	const isSuccess = phone.value == '(123) 123-1231' ? false : true
-	if(isSuccess){
-		success.style.display		= 'flex'
-		form.style.display			= 'none'
-		result									= true
-		setTimeout(()=>{
-			if(result)clearForm()
-		}, 10000)
-	}else{
-		fail.style.display			= 'flex'
-		form.style.display			= 'none'
-		result									= true
-		setTimeout(()=>{
-			if(result)clearForm()
-		}, 10000)
-	}
+	const number = phone.value.replace(/\D/g,'')
+	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/by-number/${number}`,{
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-WP-Nonce':		wpVars.nonce,
+		},
+	})
+	.then(res=>res.json())
+	.then(obj=>{
+		console.log(obj)
+		if(obj.has_vouchers){
+			succMsg.innerHTML				= `You have ${obj.vouchers} vouchers left`
+			success.style.display		= 'flex'
+			form.style.display			= 'none'
+			result									= true
+			setTimeout(()=>{
+				if(result)clearForm()
+			}, 10000)
+		}else{
+			errMsg.innerHTML = 'Out of vouchers'
+			fail.style.display			= 'flex'
+			form.style.display			= 'none'
+			result									= true
+			setTimeout(()=>{
+				if(result)clearForm()
+			}, 10000)
+		}
+	})
 })
 
 results.forEach(result=>result.addEventListener('click', clearForm))
