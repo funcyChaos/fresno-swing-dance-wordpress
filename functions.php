@@ -193,6 +193,7 @@ add_action("rest_api_init", function(){
 			"callback"	=> function(WP_REST_Request $req){
 				global $wpdb;
 				$current = $wpdb->get_results("SELECT vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req['phone']}", ARRAY_N);
+				// return !!$current;
 				if(!$current) 						return ['error' => 'Subscriber does not exist'];
 				if($current[0][0] == 0) 	return ['error' => 'Subscriber is out of vouchers'];
 

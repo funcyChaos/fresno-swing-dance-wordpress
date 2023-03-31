@@ -1,10 +1,14 @@
 const messageWrap	= document.getElementById('main_message')
 const message			= document.getElementById('message_element')
-let		result			= false
+let		showMes			= false
 const tickForm		= document.getElementById('sub_tick_form')
 const phone				= document.getElementById('user_phone')
 const newUserForm	= document.getElementById('new_user_form')
 const newPhone		= document.getElementById('new_phone')
+const newInputs		= document.querySelectorAll('.new-user-inputs')
+const forms				= [tickForm, newUserForm]
+const newUserBtn	= document.getElementById('new_user')
+const nuClose			= document.getElementById('nuf_close')
 
 tickForm.addEventListener('submit', e=>{
 	e.preventDefault()
@@ -21,17 +25,13 @@ tickForm.addEventListener('submit', e=>{
 		console.log(obj)
 		if(obj.error){
 			message.innerHTML 				= obj.error
-			messageWrap.style.display	= 'flex'
-			tickForm.style.display				= 'none'
-			result										= true
+			toggleMessage()
 			// setTimeout(()=>{
 			// 	if(result)clearForm()
 			// }, 10000)
 		}else{
 			message.innerHTML					= `${obj.first_name} has ${obj.vouchers} vouchers left`
-			messageWrap.style.display	= 'flex'
-			tickForm.style.display				= 'none'
-			result										= true
+			toggleMessage()
 			// setTimeout(()=>{
 			// 	if(result)clearForm()
 			// }, 10000)
@@ -39,14 +39,20 @@ tickForm.addEventListener('submit', e=>{
 	})
 })
 
+newUserBtn.addEventListener('click', ()=>{
+	tickForm.style.display		= 'none'
+	newUserForm.style.display	= 'flex'
+})
+nuClose.addEventListener('click', ()=>{
+	newUserForm.style.display	= 'none'
+	tickForm.style.display		= 'flex'
+})
 newUserForm.addEventListener('submit', e=>{
 	e.preventDefault()
 	data = new FormData(newUserForm)
-	// console.log(data.getAll('first_name'),data.getAll('last_name'))
 	const firstName = data.getAll('first_name')[0]
 	const lastName 	= data.getAll('last_name')[0]
 	const number		= data.getAll('new_phone')[0].replace(/\D/g,'')
-	// console.log(firstName,lastName,number)
 	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/new-user`,{
 		method: 'POST',
 		headers: {
@@ -63,7 +69,22 @@ newUserForm.addEventListener('submit', e=>{
 	.then(obj=>{
 		console.log(obj)
 		if(obj.subscriber){
-			console.log(obj.subscriber[0][0])
+			message.innerHTML = 'Subscriber already exists'
+			const div		= document.createElement('div')
+			const fName = document.createElement('p')
+			const lName = document.createElement('p')
+			const pNum	= document.createElement('p')
+			div.setAttribute('id','info_div')
+			fName.innerHTML	= `First: ${obj.subscriber[0][0]}`
+			lName.innerHTML	= `Last: ${obj.subscriber[0][1]}`
+			pNum.innerHTML	= `Phone: ${obj.subscriber[0][2]}`
+			div.appendChild(fName)
+			div.appendChild(lName)
+			div.appendChild(pNum)
+			messageWrap.appendChild(div)
+			toggleMessage()
+		}else{
+			message.innerHTML = 'Subscriber added'
 			const fName = document.createElement('p')
 			const lName = document.createElement('p')
 			const pNum	= document.createElement('p')
@@ -73,22 +94,33 @@ newUserForm.addEventListener('submit', e=>{
 			messageWrap.appendChild(fName)
 			messageWrap.appendChild(lName)
 			messageWrap.appendChild(pNum)
-			message.innerHTML 				= 'Subscriber already exists'
-			messageWrap.style.display	= 'flex'
-			newUserForm.style.display				= 'none'
-			result										= true
+			toggleMessage()
 		}
 	})
 })
 
-messageWrap.addEventListener('click', clearForm)
+messageWrap.addEventListener('click', toggleMessage)
 
-function clearForm(){
-	messageWrap.style.display	= 'none'
-	tickForm.style.display				= 'flex'
-	result										= false
-	phone.focus()
-	phone.value = ''
+function toggleMessage(){
+	if(!showMes){
+		showMes										= true
+		messageWrap.style.display	= 'flex'
+		forms.forEach(form=>{
+			form.style.display			= 'none'
+		});
+	}else{
+		showMes										= false
+		messageWrap.style.display	= 'none'
+		message.innerHTML					= ''
+		tickForm.style.display		= 'flex'
+		phone.value 							= ''
+		newInputs.forEach(input=>{
+			input.value							= ''
+		});
+		const div = document.getElementById('info_div')
+		if(div) div.remove()
+		phone.focus()
+	}
 }
 
 [phone, newPhone].forEach(item=>{
