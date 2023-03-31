@@ -193,7 +193,8 @@ add_action("rest_api_init", function(){
 			"callback"	=> function(WP_REST_Request $req){
 				global $wpdb;
 				$current = $wpdb->get_results("SELECT vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req['phone']}", ARRAY_N);
-				if($current[0][0] == 0) return ['has_vouchers' => false];
+				if(!$current) 						return ['error' => 'Subscriber does not exist'];
+				if($current[0][0] == 0) 	return ['error' => 'Subscriber is out of vouchers'];
 
 				$wpdb->query("BEGIN TRAN");
 				$query = $wpdb->prepare(
@@ -203,10 +204,10 @@ add_action("rest_api_init", function(){
 				");
 				$wpdb->query($query);
 				$wpdb->query("COMMIT");
-				$vouchers = $wpdb->get_results("SELECT vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req['phone']}", ARRAY_N);
+				$res = $wpdb->get_results("SELECT first_name, vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req['phone']}", ARRAY_N);
 				return [
-					'has_vouchers' => true,
-					'vouchers'		 => $vouchers[0][0]
+					'first_name'	=> $res[0][0],
+					'vouchers' 		=> $res[0][1],
 				];
 			},
 			'permission_callback' => function(){
@@ -220,6 +221,11 @@ add_action("rest_api_init", function(){
 			"methods"	=> "POST",
 			"callback"	=> function(WP_REST_Request $req){
 				global $wpdb;
+				$current = $wpdb->get_results("SELECT * FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req->get_param('phone')} or (first_name = '{$req->get_param('first_name')}' and last_name = '{$req->get_param('last_name')}')", ARRAY_N);
+				if($current) return [
+					'error' 			=> 'Subscriber already exists',
+					'subscriber'	=> $current,
+				];
 				$wpdb->query("BEGIN TRAN");
 				$query = $wpdb->prepare(
 					"INSERT INTO `{$wpdb->base_prefix}subscription_members`
@@ -227,7 +233,7 @@ add_action("rest_api_init", function(){
 				");
 				$res = $wpdb->query($query);
 				$wpdb->query("COMMIT");
-				return ['response' => $res];
+				return ['success' => $res == true ? true : false];
 			},
 			'permission_callback' => function(){
 				return current_user_can('edit_others_posts');
