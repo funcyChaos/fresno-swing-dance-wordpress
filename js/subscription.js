@@ -5,6 +5,7 @@ const subTickForm			= document.getElementById('sub_tick_form')
 const tickUserPhone		= document.getElementById('tick_user_phone')
 const subCheckForm		= document.getElementById('sub_check_form')
 const checkUserPhone	= document.getElementById('check_user_phone')
+const closeCheckBtn		= document.getElementById('close_check_btn')
 const newUserForm			= document.getElementById('new_user_form')
 const newUserPhone		= document.getElementById('new_phone')
 const newInputs				= document.querySelectorAll('.new-user-inputs')
@@ -46,6 +47,11 @@ checkVouchBtn.addEventListener('click', ()=>{
 	if(showMessage) toggleMessage()
 	subTickForm.style.display		= 'none'
 	subCheckForm.style.display	= 'flex'
+})
+closeCheckBtn.addEventListener('click', (e)=>{
+	e.preventDefault()
+	subCheckForm.style.display	= 'none'
+	subTickForm.style.display	= 'flex'
 })
 subCheckForm.addEventListener('submit', e=>{
 	e.preventDefault()

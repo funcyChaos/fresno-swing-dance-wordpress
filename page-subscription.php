@@ -11,13 +11,13 @@
 		</div>
 		<form class="main-cell subscription-tick-form" id="sub_tick_form">
 			<input required autofocus="true" type="tel" name="tick_user_phone" id="tick_user_phone" placeholder="(559) 492-6313">
-			<input type="submit" value="Submit">
+			<input type="submit" value="Tick">
 		</form>
 		<form class="main-cell subscription-tick-form main-hide" id="sub_check_form">
-			<!-- <label for="check_user_phone">Check Users Vouchers</label> -->
+			<button id="close_check_btn">Close</button>
 			<h1>Check Users Vouchers</h1>
 			<input required autofocus="true" type="tel" name="check_user_phone" id="check_user_phone" placeholder="(559) 492-6313">
-			<input type="submit" value="Submit">
+			<input type="submit" value="Check">
 		</form>
 		<div class="main-cell main-hide" id="main_message">
 			<h1 id="message_element"></h1>
