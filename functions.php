@@ -213,6 +213,22 @@ add_action("rest_api_init", function(){
 				return current_user_can('edit_others_posts');
 			}
 		],
+		[
+			"methods"	=> "GET",
+			"callback"	=> function(WP_REST_Request $req){
+				global $wpdb;
+				$current = $wpdb->get_results("SELECT first_name, vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req['phone']}", ARRAY_N);
+				if(!$current)return ['error' => 'Subscriber does not exist'];
+				if($current[0][0] == 0)return ['error' => 'Subscriber is out of vouchers'];
+				return [
+					'first_name'	=> $current[0][0],
+					'vouchers'		=> $current[0][1],
+				];
+			},
+			'permission_callback' => function(){
+				return current_user_can('edit_others_posts');
+			}
+		],
 	]);
 
 	register_rest_route('subscription/v1', '/new-user', [

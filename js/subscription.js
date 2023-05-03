@@ -1,14 +1,17 @@
-const mainMessage		= document.getElementById('main_message')
-const message				= document.getElementById('message_element')
-let		showMessage		= false
-const subTickForm		= document.getElementById('sub_tick_form')
-const tickUserPhone	= document.getElementById('tick_user_phone')
-const newUserForm		= document.getElementById('new_user_form')
-const newUserPhone	= document.getElementById('new_phone')
-const newInputs			= document.querySelectorAll('.new-user-inputs')
-const forms					= [subTickForm, newUserForm]
-const newUserBtn		= document.getElementById('new_user_btn')
-const nuCloseBtn		= document.getElementById('nuf_close_btn')
+const mainMessage			= document.getElementById('main_message')
+const message					= document.getElementById('message_element')
+let		showMessage			= false
+const subTickForm			= document.getElementById('sub_tick_form')
+const tickUserPhone		= document.getElementById('tick_user_phone')
+const subCheckForm		= document.getElementById('sub_check_form')
+const checkUserPhone	= document.getElementById('check_user_phone')
+const newUserForm			= document.getElementById('new_user_form')
+const newUserPhone		= document.getElementById('new_phone')
+const newInputs				= document.querySelectorAll('.new-user-inputs')
+const forms						= [subTickForm, newUserForm]
+const newUserBtn			= document.getElementById('new_user_btn')
+const checkVouchBtn		= document.getElementById('check_vouchers_btn')
+const nuCloseBtn			= document.getElementById('nuf_close_btn')
 
 subTickForm.addEventListener('submit', e=>{
 	e.preventDefault()
@@ -35,6 +38,34 @@ subTickForm.addEventListener('submit', e=>{
 			setTimeout(()=>{
 				if(showMessage)toggleMessage()
 			}, 10000)
+		}
+	})
+})
+
+checkVouchBtn.addEventListener('click', ()=>{
+	if(showMessage) toggleMessage()
+	subTickForm.style.display		= 'none'
+	subCheckForm.style.display	= 'flex'
+})
+subCheckForm.addEventListener('submit', e=>{
+	e.preventDefault()
+	const number = checkUserPhone.value.replace(/\D/g,'')
+	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/by-number/${number}`,{
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-WP-Nonce':		wpVars.nonce,
+		},
+	})
+	.then(res=>res.json())
+	.then(obj=>{
+		console.log(obj)
+		if(obj.error){
+			message.innerHTML	= obj.error
+			toggleMessage()
+		}else{
+			message.innerHTML	= `${obj.first_name} has ${obj.vouchers} vouchers left`
+			toggleMessage()
 		}
 	})
 })
@@ -124,8 +155,10 @@ function toggleMessage(){
 		showMessage										= false
 		mainMessage.style.display	= 'none'
 		message.innerHTML					= ''
-		subTickForm.style.display		= 'flex'
-		tickUserPhone.value 							= ''
+		subTickForm.style.display		= 'flex';
+		[tickUserPhone, checkUserPhone].forEach(phone=>{
+			phone.value = ''
+		})
 		newInputs.forEach(input=>{
 			input.value							= ''
 		});
@@ -135,7 +168,7 @@ function toggleMessage(){
 	}
 }
 
-[tickUserPhone, newUserPhone].forEach(item=>{
+[tickUserPhone, newUserPhone, checkUserPhone].forEach(item=>{
 	item.addEventListener('input', e=>{
 		const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/)
 		e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '')
@@ -145,8 +178,4 @@ function toggleMessage(){
 		else e.target.setCustomValidity('Must use a valid US phone number');
 		if(!e.target.value)e.target.setCustomValidity('')
 	})
-})
-
-document.addEventListener('DOMContentLoaded',()=>{
-	// clearForm()
 })
