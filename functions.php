@@ -138,8 +138,10 @@ add_action( 'widgets_init', 'fresno_swing_dance_widgets_init' );
  * Enqueue scripts and styles.
  */
 function fresno_swing_dance_scripts() {
+	wp_enqueue_style( 'fresno-swing-dance-style', get_stylesheet_uri(), array(), _S_VERSION );
+	wp_style_add_data( 'fresno-swing-dance-style', 'rtl', 'replace' );
+
 	if(is_page(6)){
-		wp_enqueue_style( 'subscription-styles', get_template_directory_uri().'/sass/style.css', array(), _S_VERSION );
 		wp_register_script( 'subscription-script', get_template_directory_uri() . '/js/subscription.js', array(), _S_VERSION, true );
 		wp_localize_script('subscription-script', 'wpVars', [
 			'homeURL'	=> home_url(),
@@ -147,117 +149,40 @@ function fresno_swing_dance_scripts() {
 		]);
 		wp_enqueue_script('subscription-script');
 	}else{
-		wp_enqueue_style( 'fresno-swing-dance-style', get_stylesheet_uri(), array(), _S_VERSION );
-	}
-	wp_style_add_data( 'fresno-swing-dance-style', 'rtl', 'replace' );
-
-	wp_enqueue_script( 'fresno-swing-dance-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
-
-	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
-		wp_enqueue_script( 'comment-reply' );
+		wp_enqueue_script( 'fresno-swing-dance-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
+	
+		if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
+			wp_enqueue_script( 'comment-reply' );
+		}
 	}
 }
 add_action( 'wp_enqueue_scripts', 'fresno_swing_dance_scripts' );
 
-/* add new tab called "mytab" */
-add_filter('um_account_page_default_tabs_hook', function($tabs){
-	$tabs[100]['profile']['icon'] = 'um-faicon-users';
-	$tabs[100]['profile']['title'] = 'Profile';
-	$tabs[100]['profile']['custom'] = true;
-	$tabs[100]['profile']['show_button'] = false;
-	return $tabs;
-}, 100 );
-	
-/* make our new tab hookable */
-add_action('um_account_tab__profile', function($info){
-	global $ultimatemember;
-	extract( $info );
-	$output = $ultimatemember->account->get_tab_output('profile');
-	if ( $output ) { echo $output; }
-});
+/**
+ * Implement the Custom Header feature.
+ */
+require get_template_directory() . '/inc/custom-header.php';
 
-/* Finally we add some content in the tab */
-add_filter('um_account_content_hook_profile', function($output){
-	ob_start();
-	?>
-	<div class="um-field">
-		<?=do_shortcode('[ultimatemember form_id="11"]')?>
-	</div>
-	<?php
-	$output .= ob_get_contents();
-	ob_end_clean();
-	return $output;
-});
+/**
+ * Custom template tags for this theme.
+ */
+require get_template_directory() . '/inc/template-tags.php';
 
-add_action("rest_api_init", function(){
-	register_rest_route('subscription/v1', '/by-number/(?P<phone>\d+)', [
-		[
-			"methods"	=> "POST",
-			"callback"	=> function(WP_REST_Request $req){
-				global $wpdb;
-				$current = $wpdb->get_results("SELECT vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req['phone']}", ARRAY_N);
-				if(!$current)return ['error' => 'Subscriber does not exist'];
-				if($current[0][0] == 0)return ['error' => 'Subscriber is out of vouchers'];
-				$wpdb->query("BEGIN TRAN");
-				$query = $wpdb->prepare(
-					"UPDATE `{$wpdb->base_prefix}subscription_members`
-					SET vouchers = vouchers - 1
-					WHERE phone = {$req['phone']}
-				");
-				$wpdb->query($query);
-				$wpdb->query("COMMIT");
-				$res = $wpdb->get_results("SELECT first_name, vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req['phone']}", ARRAY_N);
-				return [
-					'first_name'	=> $res[0][0],
-					'vouchers' 		=> $res[0][1],
-				];
-			},
-			'permission_callback' => function(){
-				return current_user_can('edit_others_posts');
-			}
-		],
-		[
-			"methods"	=> "GET",
-			"callback"	=> function(WP_REST_Request $req){
-				global $wpdb;
-				$current = $wpdb->get_results("SELECT first_name, vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req['phone']}", ARRAY_N);
-				if(!$current)return ['error' => 'Subscriber does not exist'];
-				if($current[0][0] == 0)return ['error' => 'Subscriber is out of vouchers'];
-				return [
-					'first_name'	=> $current[0][0],
-					'vouchers'		=> $current[0][1],
-				];
-			},
-			'permission_callback' => function(){
-				return current_user_can('edit_others_posts');
-			}
-		],
-	]);
+/**
+ * Functions which enhance the theme by hooking into WordPress.
+ */
+require get_template_directory() . '/inc/template-functions.php';
 
-	register_rest_route('subscription/v1', '/new-user', [
-		[
-			"methods"	=> "POST",
-			"callback"	=> function(WP_REST_Request $req){
-				global $wpdb;
-				$current = $wpdb->get_results("SELECT * FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req->get_param('phone')} or (first_name = '{$req->get_param('first_name')}' and last_name = '{$req->get_param('last_name')}')", ARRAY_N);
-				if($current) return [
-					'error' 			=> 'Subscriber already exists',
-					'subscriber'	=> $current,
-				];
-				$wpdb->query("BEGIN TRAN");
-				$query = $wpdb->prepare(
-					"INSERT INTO `{$wpdb->base_prefix}subscription_members`
-					VALUES ('{$req->get_param('first_name')}', '{$req->get_param('last_name')}', '{$req->get_param('phone')}', 3)
-				");
-				$res = $wpdb->query($query);
-				$wpdb->query("COMMIT");
-				if($res == true){
-					return ['success' => true];
-				}
-			},
-			'permission_callback' => function(){
-				return current_user_can('edit_others_posts');
-			}
-		]
-	]);
-});
+/**
+ * Customizer additions.
+ */
+require get_template_directory() . '/inc/customizer.php';
+
+/**
+ * Load Jetpack compatibility file.
+ */
+if ( defined( 'JETPACK__VERSION' ) ) {
+	require get_template_directory() . '/inc/jetpack.php';
+}
+
+require get_template_directory() . '/inc/fsd-subscription-api.php';

@@ -1,0 +1,96 @@
+@mixin buttons{
+	background-color: #880838;
+	color: white;
+	cursor: pointer;
+}
+
+*{
+	margin: 0;
+}
+
+.subscription-grid{
+	height: 100vh;
+	display: grid;
+	grid-template-columns: auto;
+	grid-template-rows: 1fr 5fr 1fr;
+	grid-template-areas: "header""main""footer";
+
+	.header-cell{
+		grid-area: header;
+		border: dashed blue;
+		display: flex;
+		justify-content: space-around;
+		align-items: center;
+
+		button{
+			@include buttons;
+			padding: .5rem;
+			border-radius: .5rem;
+			font-size: 1.5rem;
+		}
+	}
+	
+	.main-cell{
+		grid-area: main;
+		height: 100%;
+		padding: 5rem 0;
+		border: dashed green;
+
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	
+	.main-hide{
+		display: none;
+		background-color: white;
+	}
+	
+	.subscription-tick-form{
+		input[type=tel]{
+			text-align: center;
+			height: 100px;
+			width: 500px;
+			font-size: 60px;
+			border-radius: 1rem;
+			caret-color: transparent;
+		}
+		input[type=submit]{
+			@include buttons;
+			height: 5rem;
+			width: 504px;
+			margin-top: 5px;
+			border-radius: 1rem;
+			font-size: 3rem;
+			letter-spacing: 2px;
+		}
+	}
+
+	.new-user-form{
+		input[type=submit]{
+			@include buttons;
+			font-size: 2rem;
+			padding: .5rem 1rem;
+			border-radius: 1rem;
+			margin-top: 1rem;
+		}
+		label{margin-top: 1rem;}
+		#nuf_close{
+			position: absolute;
+			top: 200px;
+			right: 250px;
+
+			font-size: 2rem;
+			font-weight: bolder;
+			padding: 0 .5rem;
+			cursor: pointer;
+		}
+	}
+
+	.footer-cell{
+		grid-area: footer;
+		border: dashed purple;
+	}
+}
+
+
