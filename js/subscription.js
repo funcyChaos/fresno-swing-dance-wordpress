@@ -1,18 +1,18 @@
-const messageWrap	= document.getElementById('main_message')
-const message			= document.getElementById('message_element')
-let		showMes			= false
-const tickForm		= document.getElementById('sub_tick_form')
-const phone				= document.getElementById('user_phone')
-const newUserForm	= document.getElementById('new_user_form')
-const newPhone		= document.getElementById('new_phone')
-const newInputs		= document.querySelectorAll('.new-user-inputs')
-const forms				= [tickForm, newUserForm]
-const newUserBtn	= document.getElementById('new_user')
-const nuClose			= document.getElementById('nuf_close')
+const mainMessage		= document.getElementById('main_message')
+const message				= document.getElementById('message_element')
+let		showMessage		= false
+const subTickForm		= document.getElementById('sub_tick_form')
+const tickUserPhone	= document.getElementById('tick_user_phone')
+const newUserForm		= document.getElementById('new_user_form')
+const newUserPhone	= document.getElementById('new_phone')
+const newInputs			= document.querySelectorAll('.new-user-inputs')
+const forms					= [subTickForm, newUserForm]
+const newUserBtn		= document.getElementById('new_user_btn')
+const nuCloseBtn		= document.getElementById('nuf_close_btn')
 
-tickForm.addEventListener('submit', e=>{
+subTickForm.addEventListener('submit', e=>{
 	e.preventDefault()
-	const number = phone.value.replace(/\D/g,'')
+	const number = tickUserPhone.value.replace(/\D/g,'')
 	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/by-number/${number}`,{
 		method: 'POST',
 		headers: {
@@ -26,26 +26,27 @@ tickForm.addEventListener('submit', e=>{
 		if(obj.error){
 			message.innerHTML 				= obj.error
 			toggleMessage()
-			// setTimeout(()=>{
-			// 	if(result)clearForm()
-			// }, 10000)
+			setTimeout(()=>{
+				if(showMessage)toggleMessage()
+			}, 10000)
 		}else{
 			message.innerHTML					= `${obj.first_name} has ${obj.vouchers} vouchers left`
 			toggleMessage()
-			// setTimeout(()=>{
-			// 	if(result)clearForm()
-			// }, 10000)
+			setTimeout(()=>{
+				if(showMessage)toggleMessage()
+			}, 10000)
 		}
 	})
 })
 
 newUserBtn.addEventListener('click', ()=>{
-	tickForm.style.display		= 'none'
+	if(showMessage) toggleMessage()
+	subTickForm.style.display		= 'none'
 	newUserForm.style.display	= 'flex'
 })
-nuClose.addEventListener('click', ()=>{
+nuCloseBtn.addEventListener('click', ()=>{
 	newUserForm.style.display	= 'none'
-	tickForm.style.display		= 'flex'
+	subTickForm.style.display		= 'flex'
 })
 newUserForm.addEventListener('submit', e=>{
 	e.preventDefault()
@@ -68,62 +69,73 @@ newUserForm.addEventListener('submit', e=>{
 	.then(res=>res.json())
 	.then(obj=>{
 		console.log(obj)
-		if(obj.subscriber){
-			message.innerHTML = 'Subscriber already exists'
-			const div		= document.createElement('div')
-			const fName = document.createElement('p')
-			const lName = document.createElement('p')
-			const pNum	= document.createElement('p')
-			div.setAttribute('id','info_div')
-			fName.innerHTML	= `First: ${obj.subscriber[0][0]}`
-			lName.innerHTML	= `Last: ${obj.subscriber[0][1]}`
-			pNum.innerHTML	= `Phone: ${obj.subscriber[0][2]}`
-			div.appendChild(fName)
-			div.appendChild(lName)
-			div.appendChild(pNum)
-			messageWrap.appendChild(div)
-			toggleMessage()
-		}else{
-			message.innerHTML = 'Subscriber added'
-			const fName = document.createElement('p')
-			const lName = document.createElement('p')
-			const pNum	= document.createElement('p')
-			fName.innerHTML	= `First: ${obj.subscriber[0][0]}`
-			lName.innerHTML	= `Last: ${obj.subscriber[0][1]}`
-			pNum.innerHTML	= `Phone: ${obj.subscriber[0][2]}`
-			messageWrap.appendChild(fName)
-			messageWrap.appendChild(lName)
-			messageWrap.appendChild(pNum)
-			toggleMessage()
+		if(obj.error){
+			if(obj.subscriber){
+				messageInfoDiv(
+						'Subscriber already exists',
+						obj.subscriber[0][0],
+						obj.subscriber[0][1],
+						obj.subscriber[0][2],
+						obj.subscriber[0][3]
+					)
+			}
+		}else if(obj.success){
+			messageInfoDiv(
+				'Subscriber Added',
+				firstName,
+				lastName,
+				number,
+				3
+			)
 		}
 	})
 })
 
-messageWrap.addEventListener('click', toggleMessage)
+function messageInfoDiv(mes, first, last, phone, vouchers){
+	message.innerHTML 	= mes
+	const div						= document.createElement('div')
+	const fName 				= document.createElement('p')
+	const lName 				= document.createElement('p')
+	const pNum					= document.createElement('p')
+	const vouchEl				= document.createElement('p')
+	div.id 							= 'info_div'
+	fName.innerHTML			= `First: ${first}`
+	lName.innerHTML			= `Last: ${last}`
+	pNum.innerHTML			= `Phone: ${phone}`
+	vouchEl.innerHTML 	= `Vouchers: ${vouchers}`
+	div.appendChild(fName)
+	div.appendChild(lName)
+	div.appendChild(pNum)
+	div.appendChild(vouchEl)
+	mainMessage.appendChild(div)
+	toggleMessage()
+}
+
+mainMessage.addEventListener('click', toggleMessage)
 
 function toggleMessage(){
-	if(!showMes){
-		showMes										= true
-		messageWrap.style.display	= 'flex'
+	if(!showMessage){
+		showMessage										= true
+		mainMessage.style.display	= 'flex'
 		forms.forEach(form=>{
 			form.style.display			= 'none'
 		});
 	}else{
-		showMes										= false
-		messageWrap.style.display	= 'none'
+		showMessage										= false
+		mainMessage.style.display	= 'none'
 		message.innerHTML					= ''
-		tickForm.style.display		= 'flex'
-		phone.value 							= ''
+		subTickForm.style.display		= 'flex'
+		tickUserPhone.value 							= ''
 		newInputs.forEach(input=>{
 			input.value							= ''
 		});
 		const div = document.getElementById('info_div')
 		if(div) div.remove()
-		phone.focus()
+		tickUserPhone.focus()
 	}
 }
 
-[phone, newPhone].forEach(item=>{
+[tickUserPhone, newUserPhone].forEach(item=>{
 	item.addEventListener('input', e=>{
 		const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/)
 		e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '')

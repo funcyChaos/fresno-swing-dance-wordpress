@@ -4,13 +4,13 @@
 
 	<div class="subscription-grid">
 		<div class="header-cell">
-			<button id="new_user">New Subscriber</button>
-			<button id="renew_user">Renew</button>
-			<button id="check_vouchers">Check Vouchers</button>
-			<button id="edit_user">Edit Subscriber</button>
+			<button id="new_user_btn">New Subscriber</button>
+			<button id="renew_user_btn">Renew</button>
+			<button id="check_vouchers_btn">Check Vouchers</button>
+			<button id="edit_user_btn">Edit Subscriber</button>
 		</div>
 		<form class="main-cell subscription-tick-form" id="sub_tick_form">
-			<input required autofocus="true" type="tel" name="user_phone" id="user_phone" placeholder="(559) 492-6313">
+			<input required autofocus="true" type="tel" name="tick_user_phone" id="tick_user_phone" placeholder="(559) 492-6313">
 			<input type="submit" value="Submit">
 		</form>
 		<div class="main-cell main-hide" id="main_message">
@@ -18,7 +18,7 @@
 		</div>
 		<form class="main-cell new-user-form main-hide" id="new_user_form">
 		<!-- <form class="main-cell new-user-form" id="new_user_form"> -->
-			<button id="nuf_close" type="button">X</button>
+			<button id="nuf_close_btn" type="button">X</button>
 			<h1>New Subscriber</h1>
 			<label for="first_name">First Name</label>
 			<input class="new-user-inputs" type="text" name="first_name" id="first_name" maxlength="20" required>

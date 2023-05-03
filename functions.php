@@ -193,10 +193,8 @@ add_action("rest_api_init", function(){
 			"callback"	=> function(WP_REST_Request $req){
 				global $wpdb;
 				$current = $wpdb->get_results("SELECT vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req['phone']}", ARRAY_N);
-				// return !!$current;
-				if(!$current) 						return ['error' => 'Subscriber does not exist'];
-				if($current[0][0] == 0) 	return ['error' => 'Subscriber is out of vouchers'];
-
+				if(!$current)return ['error' => 'Subscriber does not exist'];
+				if($current[0][0] == 0)return ['error' => 'Subscriber is out of vouchers'];
 				$wpdb->query("BEGIN TRAN");
 				$query = $wpdb->prepare(
 					"UPDATE `{$wpdb->base_prefix}subscription_members`
@@ -230,11 +228,13 @@ add_action("rest_api_init", function(){
 				$wpdb->query("BEGIN TRAN");
 				$query = $wpdb->prepare(
 					"INSERT INTO `{$wpdb->base_prefix}subscription_members`
-					VALUES ('{$req->get_param('first_name')}', '{$req->get_param('last_name')}', '{$req->get_param('phone')}', 4)
+					VALUES ('{$req->get_param('first_name')}', '{$req->get_param('last_name')}', '{$req->get_param('phone')}', 3)
 				");
 				$res = $wpdb->query($query);
 				$wpdb->query("COMMIT");
-				return ['success' => $res == true ? true : false];
+				if($res == true){
+					return ['success' => true];
+				}
 			},
 			'permission_callback' => function(){
 				return current_user_can('edit_others_posts');
