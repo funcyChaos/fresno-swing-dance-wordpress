@@ -73,6 +73,10 @@
 			padding: .5rem 1rem;
 			border-radius: 1rem;
 			margin-top: 1rem;
+			&:disabled{
+				background-color: gray;
+				cursor: not-allowed;
+			}
 		}
 		label{margin-top: 1rem;}
 		#nuf_close{
