@@ -45,6 +45,8 @@
 			<input class="new-user-inputs" type="text" name="upt_last_name" id="upt_last_name" maxlength="20" required disabled>
 			<label for="upt_phone">Phone Number</label>
 			<input class="new-user-inputs" type="tel" name="upt_phone" id="upt_phone" required disabled>
+			<label for="upt_vouchers">Vouchers</label>
+			<input class="new-user-inputs" type="text" name="upt_vouchers" id="upt_vouchers" required disabled>
 			<input type="submit" value="Update" disabled>
 		</form>
 	</div>

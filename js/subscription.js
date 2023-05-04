@@ -14,15 +14,16 @@ const uptFormInputs		= [
 	document.getElementById('upt_first_name'),
 	document.getElementById('upt_last_name'),
 	document.getElementById('upt_phone'),
+	document.getElementById('upt_vouchers'),
 ]
 const forms						= [subTickForm, newUserForm]
 const newUserBtn			= document.getElementById('new_user_btn')
 const checkVouchBtn		= document.getElementById('check_vouchers_btn')
 const nuCloseBtn			= document.getElementById('nuf_close_btn')
 let		showMessage			= false
-// let		typing					= false
-let		typingTimer
 let		currentTab			= subTickForm
+let		typingTimer
+let		currentUserName
 
 subTickForm.addEventListener('submit', e=>{
 	e.preventDefault()
@@ -57,7 +58,7 @@ checkVouchBtn.addEventListener('click', ()=>{
 	if(showMessage) toggleMessage()
 	tabSwitch(subCheckForm)
 })
-closeCheckBtn.addEventListener('click', (e)=>{
+closeCheckBtn.addEventListener('click', e=>{
 	e.preventDefault()
 	tabSwitch(subTickForm)
 })
@@ -139,6 +140,32 @@ uptUserSearch.addEventListener('keyup', ()=>{
 	typingTimer	= setTimeout(doneTyping, 1000);
 })
 uptUserSearch.addEventListener('keydown', ()=>{clearTimeout(typingTimer)})
+uptUserForm.addEventListener('submit', e=>{
+	e.preventDefault()
+	let firstName	= uptFormInputs[0].value
+	let lastName	= uptFormInputs[1].value
+	let number		= uptFormInputs[2].value
+	let vouchers	= uptFormInputs[3].value
+	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/update-user`,{
+		method: 'PATCH',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-WP-Nonce':		wpVars.nonce,
+		},
+		body: JSON.stringify({
+			current:		currentUserName,
+			first_name:	firstName,
+			last_name:	lastName,
+			phone:			number,
+			vouchers: 	vouchers,
+		})
+	})
+	.then(res=>res.json())
+	.then(obj=>{
+		console.log(obj)
+		currentUserName = firstName
+	})
+})
 
 mainMessage.addEventListener('click', toggleMessage);
 
@@ -170,6 +197,7 @@ function doneTyping(){
 				uptFormInputs[i].disabled	= false
 			}
 			uptUserForm.querySelector('input[type=submit]').disabled	= false
+			currentUserName							= uptFormInputs[0].value
 		}
 		else{
 			for (let i = 0; i < uptFormInputs.length; i++){

@@ -1,4 +1,15 @@
 <?php
+
+// CREATE TABLE `wp_subscription_members` (
+//   ID INT AUTO_INCREMENT primary key NOT NULL,
+//   first_name varchar(20) DEFAULT NULL,
+//   last_name varchar(20) DEFAULT NULL,
+//   phone char(10) DEFAULT NULL,
+//   vouchers int(11) DEFAULT NULL
+// ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+// INSERT INTO wp_subscription_members (first_name, last_name, phone, vouchers)
+// VALUES ('Austin', 'Reilly', 5593600378, 3) 
+
 add_action("rest_api_init", function(){
 	register_rest_route('subscription/v1', '/by-number/(?P<phone>\d+)', [
 		[
@@ -56,7 +67,7 @@ add_action("rest_api_init", function(){
 				];
 				$wpdb->query("BEGIN TRAN");
 				$query = $wpdb->prepare(
-					"INSERT INTO `{$wpdb->base_prefix}subscription_members`
+					"INSERT INTO `{$wpdb->base_prefix}subscription_members` (first_name, last_name, phone, vouchers)
 					VALUES ('{$req->get_param('first_name')}', '{$req->get_param('last_name')}', '{$req->get_param('phone')}', 3)
 				");
 				$res = $wpdb->query($query);
@@ -76,9 +87,28 @@ add_action("rest_api_init", function(){
 			"methods"	=> "GET",
 			"callback"	=> function(WP_REST_Request $req){
 				global $wpdb;
-				$current = $wpdb->get_results("SELECT first_name, last_name, phone FROM `{$wpdb->base_prefix}subscription_members` where phone = '{$req->get_param('var')}' or first_name = '{$req->get_param('var')}' or last_name = '{$req->get_param('var')}'", ARRAY_N);
+				$current = $wpdb->get_results("SELECT first_name, last_name, phone, vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = '{$req->get_param('var')}' or first_name = '{$req->get_param('var')}' or last_name = '{$req->get_param('var')}'", ARRAY_N);
 				if(!$current)return ['error'=>'no subscriber'];
 				return ['subscriber'	=> $current];
+			},
+			'permission_callback' => function(){
+				return current_user_can('edit_others_posts');
+			}
+		],
+		[
+			"methods"	=> "PATCH",
+			"callback"	=> function(WP_REST_Request $req){
+				global $wpdb;
+				$current = $wpdb->get_results("SELECT * FROM `{$wpdb->base_prefix}subscription_members` where first_name = '{$req->get_param('current')}'", ARRAY_N);
+				$wpdb->query("BEGIN TRAN");
+				$query = $wpdb->prepare(
+					"UPDATE `{$wpdb->base_prefix}subscription_members`
+					SET first_name = '{$req->get_param('first_name')}', last_name = '{$req->get_param('last_name')}', phone = '{$req->get_param('phone')}', vouchers = '{$req->get_param('vouchers')}'
+					WHERE ID = {$current[0][0]}
+				");
+				$res = $wpdb->query($query);
+				$wpdb->query("COMMIT");
+				return ['subscriber' => $res, 'current' => $current[0][0]];
 			},
 			'permission_callback' => function(){
 				return current_user_can('edit_others_posts');
