@@ -7,9 +7,9 @@
 			<button id="new_user_btn">New Subscriber</button>
 			<button id="renew_user_btn">Renew</button>
 			<button id="check_vouchers_btn">Check Vouchers</button>
-			<button id="edit_user_btn">Edit Subscriber</button>
+			<button id="edit_subscriber_btn">Edit Subscriber</button>
 		</div>
-		<form class="main-cell subscription-tick-form main-hide" id="sub_tick_form">
+		<form class="main-cell subscription-tick-form" id="sub_tick_form">
 			<input required autofocus="true" type="tel" name="tick_user_phone" id="tick_user_phone" placeholder="(559) 492-6313">
 			<input type="submit" value="Tick">
 		</form>
@@ -33,9 +33,8 @@
 			<input class="new-user-inputs" type="tel" name="new_phone" id="new_phone" required>
 			<input type="submit" value="Submit">
 		</form>
-		<!-- <form class="main-cell new-user-form main-hide" id="new_user_form"> -->
-		<form class="main-cell new-user-form" id="update_user_form">
-			<button id="nuf_close_btn" type="button">X</button>
+		<form class="main-cell new-user-form main-hide" id="update_user_form">
+			<button id="uuf_close_btn" type="button">X</button>
 			<h1>Edit Subscriber</h1>
 			<label for="user_update_search">Search For User</label>
 			<input class="new-user-inputs" type="text" name="user_update_search" id="user_update_search">

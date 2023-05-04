@@ -4,7 +4,6 @@ const subTickForm			= document.getElementById('sub_tick_form')
 const tickUserPhone		= document.getElementById('tick_user_phone')
 const subCheckForm		= document.getElementById('sub_check_form')
 const checkUserPhone	= document.getElementById('check_user_phone')
-const closeCheckBtn		= document.getElementById('close_check_btn')
 const newUserForm			= document.getElementById('new_user_form')
 const newUserPhone		= document.getElementById('new_phone')
 const newInputs				= document.querySelectorAll('.new-user-inputs')
@@ -17,9 +16,6 @@ const uptFormInputs		= [
 	document.getElementById('upt_vouchers'),
 ]
 const forms						= [subTickForm, newUserForm]
-const newUserBtn			= document.getElementById('new_user_btn')
-const checkVouchBtn		= document.getElementById('check_vouchers_btn')
-const nuCloseBtn			= document.getElementById('nuf_close_btn')
 let		showMessage			= false
 let		currentTab			= subTickForm
 let		typingTimer
@@ -54,11 +50,8 @@ subTickForm.addEventListener('submit', e=>{
 	})
 })
 
-checkVouchBtn.addEventListener('click', ()=>{
-	if(showMessage) toggleMessage()
-	tabSwitch(subCheckForm)
-})
-closeCheckBtn.addEventListener('click', e=>{
+document.getElementById('check_vouchers_btn').addEventListener('click', ()=>{tabSwitch(subCheckForm)})
+document.getElementById('close_check_btn').addEventListener('click', e=>{
 	e.preventDefault()
 	tabSwitch(subTickForm)
 })
@@ -85,13 +78,8 @@ subCheckForm.addEventListener('submit', e=>{
 	})
 })
 
-newUserBtn.addEventListener('click', ()=>{
-	if(showMessage) toggleMessage()
-	tabSwitch(newUserForm)
-})
-nuCloseBtn.addEventListener('click', ()=>{
-	tabSwitch(subTickForm)
-})
+document.getElementById('new_user_btn').addEventListener('click', ()=>{tabSwitch(newUserForm)})
+document.getElementById('nuf_close_btn').addEventListener('click', ()=>{tabSwitch(subTickForm)})
 newUserForm.addEventListener('submit', e=>{
 	e.preventDefault()
 	data = new FormData(newUserForm)
@@ -135,6 +123,8 @@ newUserForm.addEventListener('submit', e=>{
 	})
 })
 
+document.getElementById('edit_subscriber_btn').addEventListener('click', ()=>{tabSwitch(uptUserForm)})
+document.getElementById('uuf_close_btn').addEventListener('click', ()=>{tabSwitch(subTickForm)})
 uptUserSearch.addEventListener('keyup', ()=>{
 	clearTimeout(typingTimer)
 	typingTimer	= setTimeout(doneTyping, 1000);
@@ -211,6 +201,7 @@ function doneTyping(){
 }
 
 function tabSwitch(tab){
+	if(showMessage)toggleMessage()
 	currentTab.classList.add('main-hide')
 	currentTab	= tab
 	currentTab.classList.remove('main-hide')
