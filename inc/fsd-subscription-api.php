@@ -70,4 +70,19 @@ add_action("rest_api_init", function(){
 			}
 		]
 	]);
+
+	register_rest_route('subscription/v1', '/update-user', [
+		[
+			"methods"	=> "GET",
+			"callback"	=> function(WP_REST_Request $req){
+				global $wpdb;
+				$current = $wpdb->get_results("SELECT first_name, last_name, phone FROM `{$wpdb->base_prefix}subscription_members` where phone = '{$req->get_param('var')}' or first_name = '{$req->get_param('var')}' or last_name = '{$req->get_param('var')}'", ARRAY_N);
+				if(!$current)return ['error'=>'no subscriber'];
+				return ['subscriber'	=> $current];
+			},
+			'permission_callback' => function(){
+				return current_user_can('edit_others_posts');
+			}
+		]
+	]);
 });

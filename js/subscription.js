@@ -1,6 +1,5 @@
 const mainMessage			= document.getElementById('main_message')
 const message					= document.getElementById('message_element')
-let		showMessage			= false
 const subTickForm			= document.getElementById('sub_tick_form')
 const tickUserPhone		= document.getElementById('tick_user_phone')
 const subCheckForm		= document.getElementById('sub_check_form')
@@ -9,10 +8,21 @@ const closeCheckBtn		= document.getElementById('close_check_btn')
 const newUserForm			= document.getElementById('new_user_form')
 const newUserPhone		= document.getElementById('new_phone')
 const newInputs				= document.querySelectorAll('.new-user-inputs')
+const uptUserForm			= document.getElementById('update_user_form')
+const uptUserSearch		= document.getElementById('user_update_search')
+const uptFormInputs		= [
+	document.getElementById('upt_first_name'),
+	document.getElementById('upt_last_name'),
+	document.getElementById('upt_phone'),
+]
 const forms						= [subTickForm, newUserForm]
 const newUserBtn			= document.getElementById('new_user_btn')
 const checkVouchBtn		= document.getElementById('check_vouchers_btn')
 const nuCloseBtn			= document.getElementById('nuf_close_btn')
+let		showMessage			= false
+// let		typing					= false
+let		typingTimer
+let		currentTab			= subTickForm
 
 subTickForm.addEventListener('submit', e=>{
 	e.preventDefault()
@@ -45,13 +55,11 @@ subTickForm.addEventListener('submit', e=>{
 
 checkVouchBtn.addEventListener('click', ()=>{
 	if(showMessage) toggleMessage()
-	subTickForm.style.display		= 'none'
-	subCheckForm.style.display	= 'flex'
+	tabSwitch(subCheckForm)
 })
 closeCheckBtn.addEventListener('click', (e)=>{
 	e.preventDefault()
-	subCheckForm.style.display	= 'none'
-	subTickForm.style.display	= 'flex'
+	tabSwitch(subTickForm)
 })
 subCheckForm.addEventListener('submit', e=>{
 	e.preventDefault()
@@ -78,12 +86,10 @@ subCheckForm.addEventListener('submit', e=>{
 
 newUserBtn.addEventListener('click', ()=>{
 	if(showMessage) toggleMessage()
-	subTickForm.style.display		= 'none'
-	newUserForm.style.display	= 'flex'
+	tabSwitch(newUserForm)
 })
 nuCloseBtn.addEventListener('click', ()=>{
-	newUserForm.style.display	= 'none'
-	subTickForm.style.display		= 'flex'
+	tabSwitch(subTickForm)
 })
 newUserForm.addEventListener('submit', e=>{
 	e.preventDefault()
@@ -128,6 +134,60 @@ newUserForm.addEventListener('submit', e=>{
 	})
 })
 
+uptUserSearch.addEventListener('keyup', ()=>{
+	clearTimeout(typingTimer)
+	typingTimer	= setTimeout(doneTyping, 1000);
+})
+uptUserSearch.addEventListener('keydown', ()=>{clearTimeout(typingTimer)})
+
+mainMessage.addEventListener('click', toggleMessage);
+
+[tickUserPhone, newUserPhone, checkUserPhone].forEach(item=>{
+	item.addEventListener('input', e=>{
+		const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/)
+		e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '')
+		const formatPattern = /^(\+0?1\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/
+		const isValid = formatPattern.test(e.target.value)
+		if (isValid) e.target.setCustomValidity('')
+		else e.target.setCustomValidity('Must use a valid US phone number');
+		if(!e.target.value)e.target.setCustomValidity('')
+	})
+})
+
+function doneTyping(){
+	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/update-user?var=${uptUserSearch.value}`,{
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-WP-Nonce':		wpVars.nonce,
+		},
+	})
+	.then(res=>res.json())
+	.then(obj=>{
+		if(obj.subscriber){
+			for (let i = 0; i < uptFormInputs.length; i++){
+				uptFormInputs[i].value 		= obj.subscriber[0][i]
+				uptFormInputs[i].disabled	= false
+			}
+			uptUserForm.querySelector('input[type=submit]').disabled	= false
+		}
+		else{
+			for (let i = 0; i < uptFormInputs.length; i++){
+				uptFormInputs[i].value		= ''
+				uptFormInputs[i].disabled	= true
+			}
+			uptFormInputs[0].value = 'No user found'
+			uptUserForm.querySelector('input[type=submit]').disabled	= true
+		}
+	})
+}
+
+function tabSwitch(tab){
+	currentTab.classList.add('main-hide')
+	currentTab	= tab
+	currentTab.classList.remove('main-hide')
+}
+
 function messageInfoDiv(mes, first, last, phone, vouchers){
 	message.innerHTML 	= mes
 	const div						= document.createElement('div')
@@ -148,40 +208,22 @@ function messageInfoDiv(mes, first, last, phone, vouchers){
 	toggleMessage()
 }
 
-mainMessage.addEventListener('click', toggleMessage)
-
 function toggleMessage(){
 	if(!showMessage){
 		showMessage										= true
-		mainMessage.style.display	= 'flex'
-		forms.forEach(form=>{
-			form.style.display			= 'none'
-		});
+		mainMessage.classList.remove('main-hide')
+		currentTab.classList.add('main-hide')
 	}else{
 		showMessage										= false
-		mainMessage.style.display	= 'none'
-		message.innerHTML					= ''
-		subTickForm.style.display		= 'flex';
-		[tickUserPhone, checkUserPhone].forEach(phone=>{
-			phone.value = ''
-		})
+		mainMessage.classList.add('main-hide')
+		message.innerHTML							= ''
+		currentTab.classList.remove('main-hide');
+		currentTab.querySelector('input[type=tel]').value = ''
 		newInputs.forEach(input=>{
-			input.value							= ''
+			input.value									= ''
 		});
 		const div = document.getElementById('info_div')
 		if(div) div.remove()
 		tickUserPhone.focus()
 	}
 }
-
-[tickUserPhone, newUserPhone, checkUserPhone].forEach(item=>{
-	item.addEventListener('input', e=>{
-		const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/)
-		e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '')
-		const formatPattern = /^(\+0?1\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/
-		const isValid = formatPattern.test(e.target.value)
-		if (isValid) e.target.setCustomValidity('')
-		else e.target.setCustomValidity('Must use a valid US phone number');
-		if(!e.target.value)e.target.setCustomValidity('')
-	})
-})

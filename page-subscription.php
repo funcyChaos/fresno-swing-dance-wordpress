@@ -9,7 +9,7 @@
 			<button id="check_vouchers_btn">Check Vouchers</button>
 			<button id="edit_user_btn">Edit Subscriber</button>
 		</div>
-		<form class="main-cell subscription-tick-form" id="sub_tick_form">
+		<form class="main-cell subscription-tick-form main-hide" id="sub_tick_form">
 			<input required autofocus="true" type="tel" name="tick_user_phone" id="tick_user_phone" placeholder="(559) 492-6313">
 			<input type="submit" value="Tick">
 		</form>
@@ -23,7 +23,6 @@
 			<h1 id="message_element"></h1>
 		</div>
 		<form class="main-cell new-user-form main-hide" id="new_user_form">
-		<!-- <form class="main-cell new-user-form" id="new_user_form"> -->
 			<button id="nuf_close_btn" type="button">X</button>
 			<h1>New Subscriber</h1>
 			<label for="first_name">First Name</label>
@@ -33,6 +32,20 @@
 			<label for="new_phone">Phone Number</label>
 			<input class="new-user-inputs" type="tel" name="new_phone" id="new_phone" required>
 			<input type="submit" value="Submit">
+		</form>
+		<!-- <form class="main-cell new-user-form main-hide" id="new_user_form"> -->
+		<form class="main-cell new-user-form" id="update_user_form">
+			<button id="nuf_close_btn" type="button">X</button>
+			<h1>Edit Subscriber</h1>
+			<label for="user_update_search">Search For User</label>
+			<input class="new-user-inputs" type="text" name="user_update_search" id="user_update_search">
+			<label for="upt_first_name">First Name</label>
+			<input class="new-user-inputs" type="text" name="upt_first_name" id="upt_first_name" maxlength="20" required disabled>
+			<label for="upt_last_name">Last Name</label>
+			<input class="new-user-inputs" type="text" name="upt_last_name" id="upt_last_name" maxlength="20" required disabled>
+			<label for="upt_phone">Phone Number</label>
+			<input class="new-user-inputs" type="tel" name="upt_phone" id="upt_phone" required disabled>
+			<input type="submit" value="Update" disabled>
 		</form>
 	</div>
 
