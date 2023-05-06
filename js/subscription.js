@@ -50,34 +50,6 @@ subTickForm.addEventListener('submit', e=>{
 	})
 })
 
-document.getElementById('check_vouchers_btn').addEventListener('click', ()=>{tabSwitch(subCheckForm)})
-document.getElementById('close_check_btn').addEventListener('click', e=>{
-	e.preventDefault()
-	tabSwitch(subTickForm)
-})
-subCheckForm.addEventListener('submit', e=>{
-	e.preventDefault()
-	const number = checkUserPhone.value.replace(/\D/g,'')
-	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/by-number/${number}`,{
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-WP-Nonce':		wpVars.nonce,
-		},
-	})
-	.then(res=>res.json())
-	.then(obj=>{
-		console.log(obj)
-		if(obj.error){
-			message.innerHTML	= obj.error
-			toggleMessage()
-		}else{
-			message.innerHTML	= `${obj.first_name} has ${obj.vouchers} vouchers left`
-			toggleMessage()
-		}
-	})
-})
-
 document.getElementById('new_user_btn').addEventListener('click', ()=>{tabSwitch(newUserForm)})
 document.getElementById('nuf_close_btn').addEventListener('click', ()=>{tabSwitch(subTickForm)})
 newUserForm.addEventListener('submit', e=>{
@@ -123,6 +95,36 @@ newUserForm.addEventListener('submit', e=>{
 	})
 })
 
+
+
+document.getElementById('check_vouchers_btn').addEventListener('click', ()=>{tabSwitch(subCheckForm)})
+document.getElementById('close_check_btn').addEventListener('click', e=>{
+	e.preventDefault()
+	tabSwitch(subTickForm)
+})
+subCheckForm.addEventListener('submit', e=>{
+	e.preventDefault()
+	const number = checkUserPhone.value.replace(/\D/g,'')
+	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/by-number/${number}`,{
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-WP-Nonce':		wpVars.nonce,
+		},
+	})
+	.then(res=>res.json())
+	.then(obj=>{
+		console.log(obj)
+		if(obj.error){
+			message.innerHTML	= obj.error
+			toggleMessage()
+		}else{
+			message.innerHTML	= `${obj.first_name} has ${obj.vouchers} vouchers left`
+			toggleMessage()
+		}
+	})
+})
+
 document.getElementById('edit_subscriber_btn').addEventListener('click', ()=>{tabSwitch(uptUserForm)})
 document.getElementById('uuf_close_btn').addEventListener('click', ()=>{tabSwitch(subTickForm)})
 uptUserSearch.addEventListener('keyup', ()=>{
@@ -152,8 +154,11 @@ uptUserForm.addEventListener('submit', e=>{
 	})
 	.then(res=>res.json())
 	.then(obj=>{
-		console.log(obj)
+		console.log(obj.patch)
 		currentUserName = firstName
+		if(obj.patch){
+			flashInputs()
+		}
 	})
 })
 
@@ -183,6 +188,9 @@ function doneTyping(){
 	.then(obj=>{
 		if(obj.subscriber){
 			for (let i = 0; i < uptFormInputs.length; i++){
+				if(uptFormInputs[i] != obj.subscriber[0][i]){
+					flashInputs()
+				}
 				uptFormInputs[i].value 		= obj.subscriber[0][i]
 				uptFormInputs[i].disabled	= false
 			}
@@ -193,11 +201,20 @@ function doneTyping(){
 			for (let i = 0; i < uptFormInputs.length; i++){
 				uptFormInputs[i].value		= ''
 				uptFormInputs[i].disabled	= true
+				flashInputs()
 			}
 			uptFormInputs[0].value = 'No user found'
 			uptUserForm.querySelector('input[type=submit]').disabled	= true
 		}
 	})
+}
+function flashInputs(){
+	for(const input of uptFormInputs){
+		input.classList.add('flash')
+		setTimeout(() => {
+			input.classList.remove('flash')
+		}, 200);
+	}
 }
 
 function tabSwitch(tab){
