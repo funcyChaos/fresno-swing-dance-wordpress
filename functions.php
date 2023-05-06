@@ -137,10 +137,9 @@ add_action( 'widgets_init', 'fresno_swing_dance_widgets_init' );
 /**
  * Enqueue scripts and styles.
  */
-function fresno_swing_dance_scripts() {
+add_action( 'wp_enqueue_scripts', function(){
 	wp_enqueue_style( 'fresno-swing-dance-style', get_stylesheet_uri(), array(), _S_VERSION );
 	wp_style_add_data( 'fresno-swing-dance-style', 'rtl', 'replace' );
-
 	if(is_page(6)){
 		wp_register_script( 'subscription-script', get_template_directory_uri() . '/js/subscription.js', array(), _S_VERSION, true );
 		wp_localize_script('subscription-script', 'wpVars', [
@@ -150,13 +149,12 @@ function fresno_swing_dance_scripts() {
 		wp_enqueue_script('subscription-script');
 	}else{
 		wp_enqueue_script( 'fresno-swing-dance-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
-	
+		wp_enqueue_script( 'font-awesome', 'https://kit.fontawesome.com/aebdbe8212.js', array(), _S_VERSION, true );
 		if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 			wp_enqueue_script( 'comment-reply' );
 		}
 	}
-}
-add_action( 'wp_enqueue_scripts', 'fresno_swing_dance_scripts' );
+});
 
 /**
  * Implement the Custom Header feature.
