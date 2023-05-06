@@ -108,7 +108,9 @@ add_action("rest_api_init", function(){
 				");
 				$res = $wpdb->query($query);
 				$wpdb->query("COMMIT");
-				return ['subscriber' => $res, 'current' => $current[0][0]];
+				$updated = $wpdb->get_results("SELECT * FROM `{$wpdb->base_prefix}subscription_members` where ID = {$current[0][0]}", ARRAY_N);
+				if($res)return ['patch' => $updated];
+				return['error'=>'error'];
 			},
 			'permission_callback' => function(){
 				return current_user_can('edit_others_posts');

@@ -67,6 +67,10 @@
 	}
 
 	.new-user-form{
+		.flash{
+			background-color: #eee;
+			transition: background-color .2s;
+		}
 		input[type=submit]{
 			@include buttons;
 			font-size: 2rem;
