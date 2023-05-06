@@ -3,8 +3,8 @@
 ?>
 
 <div class="content" id="content_click">
-        <img class="hero" src="./img/hero.jpg" alt="Dancing" />
-        <img class="content-style" src="./img/home-title.png" alt="" />
+        <img class="hero" src="<?=get_template_directory_uri()?>/img/hero.jpg" alt="Dancing" />
+        <img class="content-style" src="<?=get_template_directory_uri()?>/img/home-title.png" alt="" />
 
 				<!-- fix this iframe so it doesn't autoplay?? -->
 				<!-- <div class="gen-box">

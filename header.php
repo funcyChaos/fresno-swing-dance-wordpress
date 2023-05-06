@@ -16,6 +16,19 @@
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="profile" href="https://gmpg.org/xfn/11">
+	<style>
+		@font-face {
+			font-family: "betty_noirregular";
+			src: url("<?=get_template_directory_uri()?>/sass/bettynoir/bettynoir-webfont.woff2") format("woff2"),
+				url("./bettynoir/bettynoir-webfont.woff") format("woff");
+			font-weight: normal;
+			font-style: normal;
+		}
+
+		.grid{
+			background-image: url("<?=get_template_directory_uri()?>/img/BackgroundNEW.jpg");
+		}
+	</style>
 
 	<?php wp_head(); ?>
 </head>
@@ -28,7 +41,7 @@
 				<div class="logo-wrapper">
 					<img
 						id="site_logo"
-						src="./img/fsd-logo.png"
+						src="<?=get_template_directory_uri()?>/img/fsd-logo.png"
 						alt="fsd-logo"
 					/>
 				</div>
