@@ -2,6 +2,8 @@ const mainMessage			= document.getElementById('main_message')
 const message					= document.getElementById('message_element')
 const subTickForm			= document.getElementById('sub_tick_form')
 const tickUserPhone		= document.getElementById('tick_user_phone')
+const subRenewForm		= document.getElementById('sub_renew_form')
+const subRenewPhone		= document.getElementById('renew_user_phone')
 const subCheckForm		= document.getElementById('sub_check_form')
 const checkUserPhone	= document.getElementById('check_user_phone')
 const newUserForm			= document.getElementById('new_user_form')
@@ -95,7 +97,27 @@ newUserForm.addEventListener('submit', e=>{
 	})
 })
 
-
+document.getElementById('renew_user_btn').addEventListener('click', ()=>{tabSwitch(subRenewForm)})
+document.getElementById('close_renew_btn').addEventListener('click',e=>{
+	e.preventDefault()
+	tabSwitch(subTickForm)
+})
+subRenewForm.addEventListener('submit', e=>{
+	e.preventDefault()
+	const number = subRenewPhone.value.replace(/\D/g,'')
+	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/renew-user`,{
+		method: 'PATCH',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-WP-Nonce':		wpVars.nonce,
+		},
+		body: JSON.stringify({
+			phone: number,
+		})
+	})
+	.then(res=>res.json())
+	.then(obj=>console.log(obj))
+})
 
 document.getElementById('check_vouchers_btn').addEventListener('click', ()=>{tabSwitch(subCheckForm)})
 document.getElementById('close_check_btn').addEventListener('click', e=>{
@@ -154,7 +176,7 @@ uptUserForm.addEventListener('submit', e=>{
 	})
 	.then(res=>res.json())
 	.then(obj=>{
-		console.log(obj.patch)
+		console.log(obj)
 		currentUserName = firstName
 		if(obj.patch){
 			flashInputs()
@@ -164,7 +186,7 @@ uptUserForm.addEventListener('submit', e=>{
 
 mainMessage.addEventListener('click', toggleMessage);
 
-[tickUserPhone, newUserPhone, checkUserPhone].forEach(item=>{
+[tickUserPhone, newUserPhone, checkUserPhone, subRenewPhone].forEach(item=>{
 	item.addEventListener('input', e=>{
 		const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/)
 		e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '')

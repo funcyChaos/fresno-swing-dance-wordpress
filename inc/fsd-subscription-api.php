@@ -81,6 +81,32 @@ add_action("rest_api_init", function(){
 			}
 		]
 	]);
+	register_rest_route('subscription/v1', '/renew-user', [
+		[
+			"methods"	=> "PATCH",
+			"callback"	=> function(WP_REST_Request $req){
+				global $wpdb;
+				$current = $wpdb->get_results("SELECT vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req->get_param('phone')}", ARRAY_N);
+				if($current){
+					$wpdb->query("BEGIN TRAN");
+					$query = $wpdb->prepare(
+						"UPDATE `{$wpdb->base_prefix}subscription_members`
+						SET vouchers = 3
+						WHERE phone = {$req->get_param('phone')}
+					");
+					$res = $wpdb->query($query);
+					$wpdb->query("COMMIT");
+				}else{
+					return ['error' => 'cannot find user'];
+				}
+				if($res)return ['patch' => $res];
+				else return ['error' => 'error'];
+			},
+			'permission_callback' => function(){
+				return current_user_can('edit_others_posts');
+			}
+		]
+	]);
 
 	register_rest_route('subscription/v1', '/update-user', [
 		[

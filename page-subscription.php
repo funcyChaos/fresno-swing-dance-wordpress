@@ -13,6 +13,12 @@
 			<input required autofocus="true" type="tel" name="tick_user_phone" id="tick_user_phone" placeholder="(559) 492-6313">
 			<input type="submit" value="Tick">
 		</form>
+		<form class="main-cell subscription-tick-form main-hide" id="sub_renew_form">
+			<button id="close_renew_btn">Close</button>
+			<h1>Renew User</h1>
+			<input required autofocus="true" type="tel" name="renew_user_phone" id="renew_user_phone" placeholder="(559) 492-6313">
+			<input type="submit" value="Renew">
+		</form>
 		<form class="main-cell subscription-tick-form main-hide" id="sub_check_form">
 			<button id="close_check_btn">Close</button>
 			<h1>Check Users Vouchers</h1>
