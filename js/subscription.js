@@ -79,11 +79,11 @@ newUserForm.addEventListener('submit', e=>{
 		if(obj.error){
 			if(obj.subscriber){
 				messageInfoDiv(
-						'Subscriber already exists',	//mes
-						obj.subscriber[0][1],					//first
-						obj.subscriber[0][2],					//last
-						obj.subscriber[0][3],					//phone
-						obj.subscriber[0][4],					//vouchers
+						obj.error,							//mes
+						obj.subscriber[0][1],		//first
+						obj.subscriber[0][2],		//last
+						obj.subscriber[0][3],		//phone
+						obj.subscriber[0][4],		//vouchers
 					)
 			}
 		}else if(obj.success){
