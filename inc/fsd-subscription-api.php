@@ -8,17 +8,24 @@
 //   vouchers int(11) DEFAULT NULL
 // ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 // INSERT INTO wp_subscription_members (first_name, last_name, phone, vouchers)
-// VALUES ('Austin', 'Reilly', 5593600378, 3) 
+// VALUES ('Austin', 'Reilly', 5593600378, 3)
 
-add_action("rest_api_init", function(){
+$errors	= [
+	'no_sub' 			=> 'Subscriber does not exist',
+	'no_vouch'		=> 'Subscriber is out of vouchers',
+	'prev_sub'		=> 'Subscriber already exists',
+	'prev_query'	=> 'Query failed, already set',
+];
+
+add_action("rest_api_init", function()use($errors){
 	register_rest_route('subscription/v1', '/by-number/(?P<phone>\d+)', [
 		[
 			"methods"	=> "POST",
-			"callback"	=> function(WP_REST_Request $req){
+			"callback"	=> function(WP_REST_Request $req)use($errors){
 				global $wpdb;
 				$current = $wpdb->get_results("SELECT vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req['phone']}", ARRAY_N);
-				if(!$current)return ['error' => 'Subscriber does not exist'];
-				if($current[0][0] == 0)return ['error' => 'Subscriber is out of vouchers'];
+				if(!$current)return ['error' => $errors['no_sub']];
+				if($current[0][0] == 0)return ['error' => $errors['no_vouch']];
 				$wpdb->query("BEGIN TRAN");
 				$query = $wpdb->prepare(
 					"UPDATE `{$wpdb->base_prefix}subscription_members`
@@ -39,11 +46,11 @@ add_action("rest_api_init", function(){
 		],
 		[
 			"methods"	=> "GET",
-			"callback"	=> function(WP_REST_Request $req){
+			"callback"	=> function(WP_REST_Request $req)use(&$errors){
 				global $wpdb;
 				$current = $wpdb->get_results("SELECT first_name, vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req['phone']}", ARRAY_N);
-				if(!$current)return ['error' => 'Subscriber does not exist'];
-				if($current[0][0] == 0)return ['error' => 'Subscriber is out of vouchers'];
+				if(!$current)return ['error' => $errors['no_sub']];
+				if($current[0][0] == 0)return ['error' => $errors['no_vouch']];
 				return [
 					'first_name'	=> $current[0][0],
 					'vouchers'		=> $current[0][1],
@@ -58,11 +65,11 @@ add_action("rest_api_init", function(){
 	register_rest_route('subscription/v1', '/new-user', [
 		[
 			"methods"	=> "POST",
-			"callback"	=> function(WP_REST_Request $req){
+			"callback"	=> function(WP_REST_Request $req)use($errors){
 				global $wpdb;
 				$current = $wpdb->get_results("SELECT * FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req->get_param('phone')} or (first_name = '{$req->get_param('first_name')}' and last_name = '{$req->get_param('last_name')}')", ARRAY_N);
 				if($current) return [
-					'error' 			=> 'Subscriber already exists',
+					'error' 			=> $errors['prev_sub'],
 					'subscriber'	=> $current,
 				];
 				$wpdb->query("BEGIN TRAN");
@@ -84,9 +91,9 @@ add_action("rest_api_init", function(){
 	register_rest_route('subscription/v1', '/renew-user', [
 		[
 			"methods"	=> "PATCH",
-			"callback"	=> function(WP_REST_Request $req){
+			"callback"	=> function(WP_REST_Request $req)use($errors){
 				global $wpdb;
-				$current = $wpdb->get_results("SELECT vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req->get_param('phone')}", ARRAY_N);
+				$current = $wpdb->get_results("SELECT vouchers, first_name FROM `{$wpdb->base_prefix}subscription_members` where phone = {$req->get_param('phone')}", ARRAY_N);
 				if($current){
 					$wpdb->query("BEGIN TRAN");
 					$query = $wpdb->prepare(
@@ -97,10 +104,10 @@ add_action("rest_api_init", function(){
 					$res = $wpdb->query($query);
 					$wpdb->query("COMMIT");
 				}else{
-					return ['error' => 'cannot find user'];
+					return ['error' => $errors['no_sub']];
 				}
-				if($res)return ['patch' => $res];
-				else return ['error' => 'error'];
+				if($res)return ['patch' => $current[0]];
+				else return ['error' => $errors['prev_query']];
 			},
 			'permission_callback' => function(){
 				return current_user_can('edit_others_posts');
@@ -111,10 +118,10 @@ add_action("rest_api_init", function(){
 	register_rest_route('subscription/v1', '/update-user', [
 		[
 			"methods"	=> "GET",
-			"callback"	=> function(WP_REST_Request $req){
+			"callback"	=> function(WP_REST_Request $req)use($errors){
 				global $wpdb;
 				$current = $wpdb->get_results("SELECT first_name, last_name, phone, vouchers FROM `{$wpdb->base_prefix}subscription_members` where phone = '{$req->get_param('var')}' or first_name = '{$req->get_param('var')}' or last_name = '{$req->get_param('var')}'", ARRAY_N);
-				if(!$current)return ['error'=>'no subscriber'];
+				if(!$current)return ['error'=>$errors['no_sub']];
 				return ['subscriber'	=> $current];
 			},
 			'permission_callback' => function(){
@@ -123,7 +130,7 @@ add_action("rest_api_init", function(){
 		],
 		[
 			"methods"	=> "PATCH",
-			"callback"	=> function(WP_REST_Request $req){
+			"callback"	=> function(WP_REST_Request $req)use($errors){
 				global $wpdb;
 				$current = $wpdb->get_results("SELECT * FROM `{$wpdb->base_prefix}subscription_members` where first_name = '{$req->get_param('current')}'", ARRAY_N);
 				$wpdb->query("BEGIN TRAN");
@@ -136,7 +143,7 @@ add_action("rest_api_init", function(){
 				$wpdb->query("COMMIT");
 				$updated = $wpdb->get_results("SELECT * FROM `{$wpdb->base_prefix}subscription_members` where ID = {$current[0][0]}", ARRAY_N);
 				if($res)return ['patch' => $updated];
-				return['error'=>'error'];
+				return['error'=>$errors['prev_query']];
 			},
 			'permission_callback' => function(){
 				return current_user_can('edit_others_posts');

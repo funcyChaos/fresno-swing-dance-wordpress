@@ -20,6 +20,7 @@ const uptFormInputs		= [
 const forms						= [subTickForm, newUserForm]
 let		showMessage			= false
 let		currentTab			= subTickForm
+let		messageTimer		= null
 let		typingTimer
 let		currentUserName
 
@@ -35,17 +36,17 @@ subTickForm.addEventListener('submit', e=>{
 	})
 	.then(res=>res.json())
 	.then(obj=>{
-		console.log(obj)
+		console.log('Tick Submit', obj)
 		if(obj.error){
 			message.innerHTML 				= obj.error
 			toggleMessage()
-			setTimeout(()=>{
+			messageTimer = setTimeout(()=>{
 				if(showMessage)toggleMessage()
 			}, 10000)
 		}else{
 			message.innerHTML					= `${obj.first_name} has ${obj.vouchers} vouchers left`
 			toggleMessage()
-			setTimeout(()=>{
+			messageTimer = setTimeout(()=>{
 				if(showMessage)toggleMessage()
 			}, 10000)
 		}
@@ -74,15 +75,15 @@ newUserForm.addEventListener('submit', e=>{
 	})
 	.then(res=>res.json())
 	.then(obj=>{
-		console.log(obj)
+		console.log('New User Submit', obj)
 		if(obj.error){
 			if(obj.subscriber){
 				messageInfoDiv(
-						'Subscriber already exists',
-						obj.subscriber[0][0],
-						obj.subscriber[0][1],
-						obj.subscriber[0][2],
-						obj.subscriber[0][3]
+						'Subscriber already exists',	//mes
+						obj.subscriber[0][1],					//first
+						obj.subscriber[0][2],					//last
+						obj.subscriber[0][3],					//phone
+						obj.subscriber[0][4],					//vouchers
 					)
 			}
 		}else if(obj.success){
@@ -116,7 +117,16 @@ subRenewForm.addEventListener('submit', e=>{
 		})
 	})
 	.then(res=>res.json())
-	.then(obj=>console.log(obj))
+	.then(obj=>{
+		console.log('Renew Submit', obj)
+		if(obj.error){
+			message.innerHTML = obj.error
+			toggleMessage()
+		}else{
+			message.innerHTML = `${obj.patch[1]} has 3 vouchers left`
+			toggleMessage()
+		}
+	})
 })
 
 document.getElementById('check_vouchers_btn').addEventListener('click', ()=>{tabSwitch(subCheckForm)})
@@ -136,7 +146,7 @@ subCheckForm.addEventListener('submit', e=>{
 	})
 	.then(res=>res.json())
 	.then(obj=>{
-		console.log(obj)
+		console.log('Check Vouchers Submit', obj)
 		if(obj.error){
 			message.innerHTML	= obj.error
 			toggleMessage()
@@ -176,7 +186,7 @@ uptUserForm.addEventListener('submit', e=>{
 	})
 	.then(res=>res.json())
 	.then(obj=>{
-		console.log(obj)
+		console.log('Update User Submit', obj)
 		currentUserName = firstName
 		if(obj.patch){
 			flashInputs()
@@ -273,6 +283,7 @@ function toggleMessage(){
 		currentTab.classList.add('main-hide')
 	}else{
 		showMessage										= false
+		clearTimeout(messageTimer)
 		mainMessage.classList.add('main-hide')
 		message.innerHTML							= ''
 		currentTab.classList.remove('main-hide');
