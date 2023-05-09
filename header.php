@@ -52,19 +52,19 @@
 				<div class="nav-links">
 					<ul>
 						<li>
-							<a class="current-page" href="index.html">Home</a>
+							<a class="current-page" href="<?=get_home_url()?>">Home</a>
 						</li>
 						<li>
-							<a href="about-us.html">About Us</a>
+							<a href="<?=get_home_url()?>/about-us">About Us</a>
 						</li>
 						<li>
-							<a href="lessons-events.html">Lessons & Events</a>
+							<a href="<?=get_home_url()?>/lessons-events">Lessons & Events</a>
 						</li>
 						<li>
-							<a href="contact-us.html">Contact Us</a>
+							<a href="<?=get_home_url()?>/contact-us">Contact Us</a>
 						</li>
 						<li>
-							<a href="code-of-conduct.html">Code of Conduct</a>
+							<a href="<?=get_home_url()?>/code-of-conduct">Code of Conduct</a>
 						</li>
 					</ul>
 				</div>
@@ -72,19 +72,19 @@
 				<div class="nav-dropdown" id="nav_dropdown">
 					<ul>
 						<li>
-							<a class="current-page" href="index.html">Home</a>
+							<a class="current-page" href="<?=get_home_url()?>">Home</a>
 						</li>
 						<li>
-							<a href="about-us.html">About Us</a>
+							<a href="<?=get_home_url()?>/about-us">About Us</a>
 						</li>
 						<li>
-							<a href="lessons-events.html">Lessons & Events</a>
+							<a href="<?=get_home_url()?>/lessons-events">Lessons & Events</a>
 						</li>
 						<li>
-							<a href="contact-us.html">Contact Us</a>
+							<a href="<?=get_home_url()?>/contact-us">Contact Us</a>
 						</li>
 						<li>
-							<a href="code-of-conduct.html">Code of Conduct</a>
+							<a href="<?=get_home_url()?>/code-of-conduct">Code of Conduct</a>
 						</li>
 					</ul>
 				</div>

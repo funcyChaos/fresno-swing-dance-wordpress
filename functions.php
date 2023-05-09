@@ -156,6 +156,8 @@ add_action( 'wp_enqueue_scripts', function(){
 	}
 });
 
+add_action('admin_menu', function(){remove_menu_page('edit.php');});
+
 /**
  * Implement the Custom Header feature.
  */
