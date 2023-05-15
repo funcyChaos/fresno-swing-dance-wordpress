@@ -18,6 +18,15 @@ $errors	= [
 ];
 
 add_action("rest_api_init", function()use($errors){
+
+	/**
+	 * TICK ROUTES
+	 * ***********
+	 * This route under POST will
+	 * 	will tick the users phone if they exist
+	 * This route under GET will
+	 * 	will simply return the users first name and number of vouchers
+	 */
 	register_rest_route('subscription/v1', '/by-number/(?P<phone>\d+)', [
 		[
 			"methods"	=> "POST",
@@ -62,6 +71,16 @@ add_action("rest_api_init", function()use($errors){
 		],
 	]);
 
+	/**
+	 * USER ROUTES (This should be refactored to subscriber)
+	 * ***********
+	 * The new-user route will
+	 * 	Creates a new user if one does not already exist under the
+	 * 	Phone Number, First Name, Or Last Name
+	 * The renew-user route will
+	 * 	Set the users vouchers to 3 where the
+	 * 	Phone Number Matches
+	 */
 	register_rest_route('subscription/v1', '/new-user', [
 		[
 			"methods"	=> "POST",
@@ -115,6 +134,14 @@ add_action("rest_api_init", function()use($errors){
 		]
 	]);
 
+	/**
+	 * UPDATE ROUTES (This should be refactored to subscriber)
+	 * *************
+	 * The route under GET will
+	 * 	Return the users full information
+	 * This route under PATCH will
+	 * 	Update the users information with any new incoming information
+	 */
 	register_rest_route('subscription/v1', '/update-user', [
 		[
 			"methods"	=> "GET",

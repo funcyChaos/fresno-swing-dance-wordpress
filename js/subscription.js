@@ -24,6 +24,11 @@ let		messageTimer		= null
 let		typingTimer
 let		currentUserName
 
+/**
+ * Subscriber Tick Form Submit Handler
+ * ***********************************
+ * If the subscriber exists, one voucher will be removed from their total
+ */
 subTickForm.addEventListener('submit', e=>{
 	e.preventDefault()
 	const number = tickUserPhone.value.replace(/\D/g,'')
@@ -55,6 +60,12 @@ subTickForm.addEventListener('submit', e=>{
 
 document.getElementById('new_user_btn').addEventListener('click', ()=>{tabSwitch(newUserForm)})
 document.getElementById('nuf_close_btn').addEventListener('click', ()=>{tabSwitch(subTickForm)})
+/**
+ * New Subscriber Form Submit Handler
+ * **********************************
+ * Creates new subscriber if one doesn't exist already
+ * 	And shows remaining vouchers or else an error
+ */
 newUserForm.addEventListener('submit', e=>{
 	e.preventDefault()
 	data = new FormData(newUserForm)
@@ -103,6 +114,12 @@ document.getElementById('close_renew_btn').addEventListener('click',e=>{
 	e.preventDefault()
 	tabSwitch(subTickForm)
 })
+/**
+ * Subscriber Renew Form Handler
+ * *****************************
+ * Sets the subscribers vouchers to 3 if phone number matches
+ * 	And shows the update or else an error
+ */
 subRenewForm.addEventListener('submit', e=>{
 	e.preventDefault()
 	const number = subRenewPhone.value.replace(/\D/g,'')
@@ -134,6 +151,11 @@ document.getElementById('close_check_btn').addEventListener('click', e=>{
 	e.preventDefault()
 	tabSwitch(subTickForm)
 })
+/**
+ * Subscriber Check Vouchers Form
+ * ******************************
+ * Shows subscribers remaining vouchers or else an error
+ */
 subCheckForm.addEventListener('submit', e=>{
 	e.preventDefault()
 	const number = checkUserPhone.value.replace(/\D/g,'')
@@ -159,11 +181,22 @@ subCheckForm.addEventListener('submit', e=>{
 
 document.getElementById('edit_subscriber_btn').addEventListener('click', ()=>{tabSwitch(uptUserForm)})
 document.getElementById('uuf_close_btn').addEventListener('click', ()=>{tabSwitch(subTickForm)})
+/**
+ * Search For User Event Handlers (This should be refactored to subscriber)
+ * ************************
+ * These handlers will trigger the doneTyping function (maybe should be renamed) when
+ * 	The user has finished typing for 1 second
+ */
 uptUserSearch.addEventListener('keyup', ()=>{
 	clearTimeout(typingTimer)
-	typingTimer	= setTimeout(doneTyping, 1000);
+	typingTimer	= setTimeout(searchForUser, 1000);
 })
 uptUserSearch.addEventListener('keydown', ()=>{clearTimeout(typingTimer)})
+/**
+ * Update User Form Event Handler (This should be refactored to subscriber)
+ * ******************************
+ * This will update any changed information on the selected user
+ */
 uptUserForm.addEventListener('submit', e=>{
 	e.preventDefault()
 	let firstName	= uptFormInputs[0].value
@@ -196,6 +229,10 @@ uptUserForm.addEventListener('submit', e=>{
 
 mainMessage.addEventListener('click', toggleMessage);
 
+/**
+ * Phone Number Format On Input Event Handler
+ * ******************************************
+ */
 [tickUserPhone, newUserPhone, checkUserPhone, subRenewPhone].forEach(item=>{
 	item.addEventListener('input', e=>{
 		const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/)
@@ -208,7 +245,11 @@ mainMessage.addEventListener('click', toggleMessage);
 	})
 })
 
-function doneTyping(){
+/**
+ * Search For User on keyup function
+ * *********************************
+ */
+function searchForUser(){
 	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/update-user?var=${uptUserSearch.value}`,{
 		method: 'GET',
 		headers: {
