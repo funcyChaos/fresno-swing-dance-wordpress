@@ -1,18 +1,28 @@
 const mainMessage			= document.getElementById('main_message')
 const message					= document.getElementById('message_element')
-let		showMessage			= false
 const subTickForm			= document.getElementById('sub_tick_form')
 const tickUserPhone		= document.getElementById('tick_user_phone')
+const subRenewForm		= document.getElementById('sub_renew_form')
+const subRenewPhone		= document.getElementById('renew_user_phone')
 const subCheckForm		= document.getElementById('sub_check_form')
 const checkUserPhone	= document.getElementById('check_user_phone')
-const closeCheckBtn		= document.getElementById('close_check_btn')
 const newUserForm			= document.getElementById('new_user_form')
 const newUserPhone		= document.getElementById('new_phone')
 const newInputs				= document.querySelectorAll('.new-user-inputs')
+const uptUserForm			= document.getElementById('update_user_form')
+const uptUserSearch		= document.getElementById('user_update_search')
+const uptFormInputs		= [
+	document.getElementById('upt_first_name'),
+	document.getElementById('upt_last_name'),
+	document.getElementById('upt_phone'),
+	document.getElementById('upt_vouchers'),
+]
 const forms						= [subTickForm, newUserForm]
-const newUserBtn			= document.getElementById('new_user_btn')
-const checkVouchBtn		= document.getElementById('check_vouchers_btn')
-const nuCloseBtn			= document.getElementById('nuf_close_btn')
+let		showMessage			= false
+let		currentTab			= subTickForm
+let		messageTimer		= null
+let		typingTimer
+let		currentUserName
 
 subTickForm.addEventListener('submit', e=>{
 	e.preventDefault()
@@ -26,65 +36,25 @@ subTickForm.addEventListener('submit', e=>{
 	})
 	.then(res=>res.json())
 	.then(obj=>{
-		console.log(obj)
+		console.log('Tick Submit', obj)
 		if(obj.error){
 			message.innerHTML 				= obj.error
 			toggleMessage()
-			setTimeout(()=>{
+			messageTimer = setTimeout(()=>{
 				if(showMessage)toggleMessage()
 			}, 10000)
 		}else{
 			message.innerHTML					= `${obj.first_name} has ${obj.vouchers} vouchers left`
 			toggleMessage()
-			setTimeout(()=>{
+			messageTimer = setTimeout(()=>{
 				if(showMessage)toggleMessage()
 			}, 10000)
 		}
 	})
 })
 
-checkVouchBtn.addEventListener('click', ()=>{
-	if(showMessage) toggleMessage()
-	subTickForm.style.display		= 'none'
-	subCheckForm.style.display	= 'flex'
-})
-closeCheckBtn.addEventListener('click', (e)=>{
-	e.preventDefault()
-	subCheckForm.style.display	= 'none'
-	subTickForm.style.display	= 'flex'
-})
-subCheckForm.addEventListener('submit', e=>{
-	e.preventDefault()
-	const number = checkUserPhone.value.replace(/\D/g,'')
-	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/by-number/${number}`,{
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-WP-Nonce':		wpVars.nonce,
-		},
-	})
-	.then(res=>res.json())
-	.then(obj=>{
-		console.log(obj)
-		if(obj.error){
-			message.innerHTML	= obj.error
-			toggleMessage()
-		}else{
-			message.innerHTML	= `${obj.first_name} has ${obj.vouchers} vouchers left`
-			toggleMessage()
-		}
-	})
-})
-
-newUserBtn.addEventListener('click', ()=>{
-	if(showMessage) toggleMessage()
-	subTickForm.style.display		= 'none'
-	newUserForm.style.display	= 'flex'
-})
-nuCloseBtn.addEventListener('click', ()=>{
-	newUserForm.style.display	= 'none'
-	subTickForm.style.display		= 'flex'
-})
+document.getElementById('new_user_btn').addEventListener('click', ()=>{tabSwitch(newUserForm)})
+document.getElementById('nuf_close_btn').addEventListener('click', ()=>{tabSwitch(subTickForm)})
 newUserForm.addEventListener('submit', e=>{
 	e.preventDefault()
 	data = new FormData(newUserForm)
@@ -105,15 +75,15 @@ newUserForm.addEventListener('submit', e=>{
 	})
 	.then(res=>res.json())
 	.then(obj=>{
-		console.log(obj)
+		console.log('New User Submit', obj)
 		if(obj.error){
 			if(obj.subscriber){
 				messageInfoDiv(
-						'Subscriber already exists',
-						obj.subscriber[0][0],
-						obj.subscriber[0][1],
-						obj.subscriber[0][2],
-						obj.subscriber[0][3]
+						obj.error,							//mes
+						obj.subscriber[0][1],		//first
+						obj.subscriber[0][2],		//last
+						obj.subscriber[0][3],		//phone
+						obj.subscriber[0][4],		//vouchers
 					)
 			}
 		}else if(obj.success){
@@ -127,6 +97,164 @@ newUserForm.addEventListener('submit', e=>{
 		}
 	})
 })
+
+document.getElementById('renew_user_btn').addEventListener('click', ()=>{tabSwitch(subRenewForm)})
+document.getElementById('close_renew_btn').addEventListener('click',e=>{
+	e.preventDefault()
+	tabSwitch(subTickForm)
+})
+subRenewForm.addEventListener('submit', e=>{
+	e.preventDefault()
+	const number = subRenewPhone.value.replace(/\D/g,'')
+	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/renew-user`,{
+		method: 'PATCH',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-WP-Nonce':		wpVars.nonce,
+		},
+		body: JSON.stringify({
+			phone: number,
+		})
+	})
+	.then(res=>res.json())
+	.then(obj=>{
+		console.log('Renew Submit', obj)
+		if(obj.error){
+			message.innerHTML = obj.error
+			toggleMessage()
+		}else{
+			message.innerHTML = `${obj.patch[1]} has 3 vouchers left`
+			toggleMessage()
+		}
+	})
+})
+
+document.getElementById('check_vouchers_btn').addEventListener('click', ()=>{tabSwitch(subCheckForm)})
+document.getElementById('close_check_btn').addEventListener('click', e=>{
+	e.preventDefault()
+	tabSwitch(subTickForm)
+})
+subCheckForm.addEventListener('submit', e=>{
+	e.preventDefault()
+	const number = checkUserPhone.value.replace(/\D/g,'')
+	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/by-number/${number}`,{
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-WP-Nonce':		wpVars.nonce,
+		},
+	})
+	.then(res=>res.json())
+	.then(obj=>{
+		console.log('Check Vouchers Submit', obj)
+		if(obj.error){
+			message.innerHTML	= obj.error
+			toggleMessage()
+		}else{
+			message.innerHTML	= `${obj.first_name} has ${obj.vouchers} vouchers left`
+			toggleMessage()
+		}
+	})
+})
+
+document.getElementById('edit_subscriber_btn').addEventListener('click', ()=>{tabSwitch(uptUserForm)})
+document.getElementById('uuf_close_btn').addEventListener('click', ()=>{tabSwitch(subTickForm)})
+uptUserSearch.addEventListener('keyup', ()=>{
+	clearTimeout(typingTimer)
+	typingTimer	= setTimeout(doneTyping, 1000);
+})
+uptUserSearch.addEventListener('keydown', ()=>{clearTimeout(typingTimer)})
+uptUserForm.addEventListener('submit', e=>{
+	e.preventDefault()
+	let firstName	= uptFormInputs[0].value
+	let lastName	= uptFormInputs[1].value
+	let number		= uptFormInputs[2].value
+	let vouchers	= uptFormInputs[3].value
+	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/update-user`,{
+		method: 'PATCH',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-WP-Nonce':		wpVars.nonce,
+		},
+		body: JSON.stringify({
+			current:		currentUserName,
+			first_name:	firstName,
+			last_name:	lastName,
+			phone:			number,
+			vouchers: 	vouchers,
+		})
+	})
+	.then(res=>res.json())
+	.then(obj=>{
+		console.log('Update User Submit', obj)
+		currentUserName = firstName
+		if(obj.patch){
+			flashInputs()
+		}
+	})
+})
+
+mainMessage.addEventListener('click', toggleMessage);
+
+[tickUserPhone, newUserPhone, checkUserPhone, subRenewPhone].forEach(item=>{
+	item.addEventListener('input', e=>{
+		const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/)
+		e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '')
+		const formatPattern = /^(\+0?1\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/
+		const isValid = formatPattern.test(e.target.value)
+		if (isValid) e.target.setCustomValidity('')
+		else e.target.setCustomValidity('Must use a valid US phone number');
+		if(!e.target.value)e.target.setCustomValidity('')
+	})
+})
+
+function doneTyping(){
+	fetch(`${wpVars.homeURL}/wp-json/subscription/v1/update-user?var=${uptUserSearch.value}`,{
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-WP-Nonce':		wpVars.nonce,
+		},
+	})
+	.then(res=>res.json())
+	.then(obj=>{
+		if(obj.subscriber){
+			for (let i = 0; i < uptFormInputs.length; i++){
+				if(uptFormInputs[i] != obj.subscriber[0][i]){
+					flashInputs()
+				}
+				uptFormInputs[i].value 		= obj.subscriber[0][i]
+				uptFormInputs[i].disabled	= false
+			}
+			uptUserForm.querySelector('input[type=submit]').disabled	= false
+			currentUserName							= uptFormInputs[0].value
+		}
+		else{
+			for (let i = 0; i < uptFormInputs.length; i++){
+				uptFormInputs[i].value		= ''
+				uptFormInputs[i].disabled	= true
+				flashInputs()
+			}
+			uptFormInputs[0].value = 'No user found'
+			uptUserForm.querySelector('input[type=submit]').disabled	= true
+		}
+	})
+}
+function flashInputs(){
+	for(const input of uptFormInputs){
+		input.classList.add('flash')
+		setTimeout(() => {
+			input.classList.remove('flash')
+		}, 200);
+	}
+}
+
+function tabSwitch(tab){
+	if(showMessage)toggleMessage()
+	currentTab.classList.add('main-hide')
+	currentTab	= tab
+	currentTab.classList.remove('main-hide')
+}
 
 function messageInfoDiv(mes, first, last, phone, vouchers){
 	message.innerHTML 	= mes
@@ -148,40 +276,23 @@ function messageInfoDiv(mes, first, last, phone, vouchers){
 	toggleMessage()
 }
 
-mainMessage.addEventListener('click', toggleMessage)
-
 function toggleMessage(){
 	if(!showMessage){
 		showMessage										= true
-		mainMessage.style.display	= 'flex'
-		forms.forEach(form=>{
-			form.style.display			= 'none'
-		});
+		mainMessage.classList.remove('main-hide')
+		currentTab.classList.add('main-hide')
 	}else{
 		showMessage										= false
-		mainMessage.style.display	= 'none'
-		message.innerHTML					= ''
-		subTickForm.style.display		= 'flex';
-		[tickUserPhone, checkUserPhone].forEach(phone=>{
-			phone.value = ''
-		})
+		clearTimeout(messageTimer)
+		mainMessage.classList.add('main-hide')
+		message.innerHTML							= ''
+		currentTab.classList.remove('main-hide');
+		currentTab.querySelector('input[type=tel]').value = ''
 		newInputs.forEach(input=>{
-			input.value							= ''
+			input.value									= ''
 		});
 		const div = document.getElementById('info_div')
 		if(div) div.remove()
 		tickUserPhone.focus()
 	}
 }
-
-[tickUserPhone, newUserPhone, checkUserPhone].forEach(item=>{
-	item.addEventListener('input', e=>{
-		const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/)
-		e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '')
-		const formatPattern = /^(\+0?1\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/
-		const isValid = formatPattern.test(e.target.value)
-		if (isValid) e.target.setCustomValidity('')
-		else e.target.setCustomValidity('Must use a valid US phone number');
-		if(!e.target.value)e.target.setCustomValidity('')
-	})
-})

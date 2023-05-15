@@ -11,22 +11,21 @@
 
 ?>
 
-	<footer id="colophon" class="site-footer">
-		<div class="site-info">
-			<a href="<?php echo esc_url( __( 'https://wordpress.org/', 'fresno-swing-dance' ) ); ?>">
-				<?php
-				/* translators: %s: CMS name, i.e. WordPress. */
-				printf( esc_html__( 'Proudly powered by %s', 'fresno-swing-dance' ), 'WordPress' );
-				?>
+	<footer class="footer-cell">
+			<a href="https://www.facebook.com/fresnoswingdance" target="blank">
+				<i class="fab fa-facebook-square fa-2x"></i>
 			</a>
-			<span class="sep"> | </span>
-				<?php
-				/* translators: 1: Theme name, 2: Theme author. */
-				printf( esc_html__( 'Theme: %1$s by %2$s.', 'fresno-swing-dance' ), 'fresno-swing-dance', '<a href="http://underscores.me/">Underscores.me</a>' );
-				?>
-		</div><!-- .site-info -->
-	</footer><!-- #colophon -->
-</div><!-- #page -->
+			<a href="https://www.instagram.com/fresno_swing_dance/" target="blank">
+				<i class="fab fa-instagram fa-2x"></i>
+			</a>
+			<a href="https://www.youtube.com/user/fresnoswingdance" target="blank">
+				<i class="fab fa-youtube fa-2x"></i>
+			</a>
+		</footer>
+	</div>
+
+	<!-- <script src="./js/javascript.js"></script> -->
+	<!-- <script src="https://kit.fontawesome.com/aebdbe8212.js" crossorigin="anonymous"></script> -->
 
 <?php wp_footer(); ?>
 
