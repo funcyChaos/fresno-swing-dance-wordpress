@@ -1,0 +1,26 @@
+.post-thumbnail{
+	width: 400px;
+
+	img{
+		width: 100%;
+		height: auto;
+	}
+}
+
+.wp-block-group{
+	width: 80%;
+
+	text-shadow: 0.2rem 0.2rem 0.5rem black;
+	color: white;
+	font-weight: bolder;
+	font-size: 1.75rem;
+	line-height: 2rem;
+	background-color: #666d;
+	border-radius: 0.3rem;
+	padding: 1rem;
+	
+	a{
+		color: white;
+		font-size: 1.5rem;
+	}
+}
