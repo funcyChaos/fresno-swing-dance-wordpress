@@ -39,7 +39,7 @@
 		<form class="main-cell new-user-form main-hide" id="update_user_form">
 			<button type="button" id="uuf_close_btn">X</button>
 			<h1>Edit Subscriber</h1>
-			<label for="user_update_search">Search For User</label>
+			<label for="user_update_search">Search For User:</label>
 			<input class="new-user-inputs" type="text" name="user_update_search" id="user_update_search">
 			<label for="upt_first_name">First Name</label>
 			<input class="new-user-inputs" type="text" name="upt_first_name" id="upt_first_name" maxlength="20" required disabled>

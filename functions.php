@@ -9,7 +9,7 @@
 
 if ( ! defined( '_S_VERSION' ) ) {
 	// Replace the version number of the theme on each release.
-	define( '_S_VERSION', '1.0.0' );
+	define( '_S_VERSION', '1.0.1' );
 }
 
 /**
@@ -28,9 +28,6 @@ function fresno_swing_dance_setup() {
 		*/
 	load_theme_textdomain( 'fresno-swing-dance', get_template_directory() . '/languages' );
 
-	// Add default posts and comments RSS feed links to head.
-	add_theme_support( 'automatic-feed-links' );
-
 	/*
 		* Let WordPress manage the document title.
 		* By adding theme support, we declare that this theme does not use a
@@ -47,43 +44,25 @@ function fresno_swing_dance_setup() {
 	add_theme_support( 'post-thumbnails' );
 
 	// This theme uses wp_nav_menu() in one location.
-	register_nav_menus(
-		array(
-			'menu-1' => esc_html__( 'Primary', 'fresno-swing-dance' ),
-		)
-	);
-
-	/*
-		* Switch default core markup for search form, comment form, and comments
-		* to output valid HTML5.
-		*/
-	add_theme_support(
-		'html5',
-		array(
-			'search-form',
-			'comment-form',
-			'comment-list',
-			'gallery',
-			'caption',
-			'style',
-			'script',
-		)
-	);
+	// This theme is not using the wp_nav_menu() function, but could/should be added in later
+	// register_nav_menus(
+	// 	array(
+	// 		'menu-1' => esc_html__( 'Primary', 'fresno-swing-dance' ),
+	// 	)
+	// );
 
 	// Set up the WordPress core custom background feature.
-	add_theme_support(
-		'custom-background',
-		apply_filters(
-			'fresno_swing_dance_custom_background_args',
-			array(
-				'default-color' => 'ffffff',
-				'default-image' => '',
-			)
-		)
-	);
-
-	// Add theme support for selective refresh for widgets.
-	add_theme_support( 'customize-selective-refresh-widgets' );
+	// This would be cool to add back in, but would require some work I think
+	// add_theme_support(
+	// 	'custom-background',
+	// 	apply_filters(
+	// 		'fresno_swing_dance_custom_background_args',
+	// 		array(
+	// 			'default-color' => 'ffffff',
+	// 			'default-image' => '',
+	// 		)
+	// 	)
+	// );
 
 	/**
 	 * Add support for core custom logo.
@@ -115,26 +94,6 @@ function fresno_swing_dance_content_width() {
 add_action( 'after_setup_theme', 'fresno_swing_dance_content_width', 0 );
 
 /**
- * Register widget area.
- *
- * @link https://developer.wordpress.org/themes/functionality/sidebars/#registering-a-sidebar
- */
-function fresno_swing_dance_widgets_init() {
-	register_sidebar(
-		array(
-			'name'          => esc_html__( 'Sidebar', 'fresno-swing-dance' ),
-			'id'            => 'sidebar-1',
-			'description'   => esc_html__( 'Add widgets here.', 'fresno-swing-dance' ),
-			'before_widget' => '<section id="%1$s" class="widget %2$s">',
-			'after_widget'  => '</section>',
-			'before_title'  => '<h2 class="widget-title">',
-			'after_title'   => '</h2>',
-		)
-	);
-}
-add_action( 'widgets_init', 'fresno_swing_dance_widgets_init' );
-
-/**
  * Enqueue scripts and styles.
  */
 add_action( 'wp_enqueue_scripts', function(){
@@ -156,33 +115,16 @@ add_action( 'wp_enqueue_scripts', function(){
 	}
 });
 
-add_action('admin_menu', function(){remove_menu_page('edit.php');});
 
 /**
- * Implement the Custom Header feature.
- */
-require get_template_directory() . '/inc/custom-header.php';
+* Remove unnecessary menus
+*/
+add_action('admin_menu', function(){
+	remove_menu_page('edit.php');
+	remove_menu_page('edit-comments.php');
+});
 
 /**
- * Custom template tags for this theme.
- */
-require get_template_directory() . '/inc/template-tags.php';
-
-/**
- * Functions which enhance the theme by hooking into WordPress.
- */
-require get_template_directory() . '/inc/template-functions.php';
-
-/**
- * Customizer additions.
- */
-require get_template_directory() . '/inc/customizer.php';
-
-/**
- * Load Jetpack compatibility file.
- */
-if ( defined( 'JETPACK__VERSION' ) ) {
-	require get_template_directory() . '/inc/jetpack.php';
-}
-
+* The subscription API for the subscription page database interactions
+*/
 require get_template_directory() . '/inc/fsd-subscription-api.php';

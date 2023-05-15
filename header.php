@@ -46,25 +46,26 @@
 					/>
 				</div>
 			</a>
-
+			
 			<div class="banner">
 				<h1>Fresno Swing Dance</h1>
 				<div class="nav-links">
+					<?php $current = 'class="current-page"';?>
 					<ul>
 						<li>
-							<a class="current-page" href="<?=get_home_url()?>">Home</a>
+							<a <?php if(is_front_page()) echo $current;?> href="<?=get_home_url()?>">Home</a>
 						</li>
 						<li>
-							<a href="<?=get_home_url()?>/about-us">About Us</a>
+							<a <?php if(is_page('about-us')) echo $current;?> href="<?=get_home_url()?>/about-us">About Us</a>
 						</li>
 						<li>
-							<a href="<?=get_home_url()?>/lessons-events">Lessons & Events</a>
+							<a <?php if(is_page('lessons-events')) echo $current;?> href="<?=get_home_url()?>/lessons-events">Lessons & Events</a>
 						</li>
 						<li>
-							<a href="<?=get_home_url()?>/contact-us">Contact Us</a>
+							<a <?php if(is_page('contact-us')) echo $current;?> href="<?=get_home_url()?>/contact-us">Contact Us</a>
 						</li>
 						<li>
-							<a href="<?=get_home_url()?>/code-of-conduct">Code of Conduct</a>
+							<a <?php if(is_page('code-of-conduct')) echo $current;?> href="<?=get_home_url()?>/code-of-conduct">Code of Conduct</a>
 						</li>
 					</ul>
 				</div>
@@ -90,3 +91,10 @@
 				</div>
 			</div>
 		</nav>
+
+
+		<?php
+			$message = is_page('contact-us') ? 'success' : 'fail';
+		?>
+		
+		<script>console.log('<?=$message?>')</script>
