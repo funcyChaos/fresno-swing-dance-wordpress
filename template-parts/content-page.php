@@ -7,7 +7,6 @@
  * @package Fresno_Swing_Dance
  */
 
-fresno_swing_dance_post_thumbnail();
 the_content();
 
 wp_link_pages(
